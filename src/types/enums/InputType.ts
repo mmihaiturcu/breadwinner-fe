@@ -1,0 +1,15 @@
+export enum InputType {
+    text,
+    number,
+    textArea,
+    checkbox,
+    autocomplete,
+    telephone,
+    password,
+    date,
+    time,
+    timeRange,
+    select,
+    file,
+    imageCrop,
+}
