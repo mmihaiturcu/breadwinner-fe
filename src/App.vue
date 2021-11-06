@@ -1,14 +1,47 @@
 <template>
-    <div></div>
+    <div>
+        <InputFile :field="fileField" @update:modelValue="uploadedFile" />
+    </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import SEAL from 'node-seal';
+import Papa from 'papaparse';
+
+import InputFile from '@/components/inputs/InputFile.vue';
+import { InputFieldFile, InputType } from '@/types';
+import { chunkArray } from '@/utils/helper';
+import { CHUNK_SIZE } from '@/utils/constants';
 
 export default defineComponent({
     name: 'App',
+    components: {
+        InputFile,
+    },
+    data: function() {
+        return {
+            fileField: {
+                type: InputType.file,
+                acceptedMIMETypes: {
+                    'text/csv': true,
+                },
+                value: null,
+                previewURL: require('@/assets/icons/file-delimited.svg'),
+            } as InputFieldFile,
+        };
+    },
     methods: {
+        uploadedFile: function(files: FileList) {
+            Papa.parse(files[0], {
+                worker: true,
+                complete: result => {
+                    console.log(result);
+                    const chunks = chunkArray(result.data, CHUNK_SIZE);
+                    console.log(chunks);
+                },
+            });
+        },
         performEncryptionTest: async function() {
             const seal = await SEAL();
             const schemeType = seal.SchemeType.bfv;
@@ -170,7 +203,7 @@ export default defineComponent({
         },
     },
     mounted: function() {
-        this.performEncryptionTest();
+        // this.performEncryptionTest();
     },
 });
 </script>
