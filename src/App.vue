@@ -1,6 +1,7 @@
 <template>
     <div>
         <InputFile :field="fileField" @update:modelValue="uploadedFile" />
+        <button @click="testWebsocket">Test Websockets</button>
     </div>
 </template>
 
@@ -12,7 +13,13 @@ import Papa from 'papaparse';
 import InputFile from '@/components/inputs/InputFile.vue';
 import { InputFieldFile, InputType } from '@/types';
 import { chunkArray } from '@/utils/helper';
-import { CHUNK_SIZE } from '@/utils/constants';
+import { CHUNK_SIZE, WSS_SERVER_URL } from '@/utils/constants';
+import { SEALLibrary } from 'node-seal/implementation/seal';
+import { Context } from 'node-seal/implementation/context';
+import { PublicKey } from 'node-seal/implementation/public-key';
+import { SecretKey } from 'node-seal/implementation/secret-key';
+import { CipherText } from 'node-seal/implementation/cipher-text';
+import { createAPIKey } from './service/service';
 
 export default defineComponent({
     name: 'App',
@@ -32,17 +39,7 @@ export default defineComponent({
         };
     },
     methods: {
-        uploadedFile: function(files: FileList) {
-            Papa.parse(files[0], {
-                worker: true,
-                complete: result => {
-                    console.log(result);
-                    const chunks = chunkArray(result.data, CHUNK_SIZE);
-                    console.log(chunks);
-                },
-            });
-        },
-        performEncryptionTest: async function() {
+        async initFHEContext(): Promise<{ seal: SEALLibrary; context: Context }> {
             const seal = await SEAL();
             const schemeType = seal.SchemeType.bfv;
             const securityLevel = seal.SecurityLevel.tc128;
@@ -80,6 +77,15 @@ export default defineComponent({
                 );
             }
 
+            return {
+                seal,
+                context,
+            };
+        },
+        generateKeys(
+            seal: SEALLibrary,
+            context: Context
+        ): { publicKey: PublicKey; secretKey: SecretKey } {
             ////////////////////////
             // Keys
             ////////////////////////
@@ -130,7 +136,17 @@ export default defineComponent({
 
             // // Create a new KeyGenerator (use both uploaded keys)
             // const keyGenerator = seal.KeyGenerator(context, UploadedSecretKey, UploadedPublicKey)
-
+            return {
+                publicKey,
+                secretKey,
+            };
+        },
+        encryptData(
+            seal: SEALLibrary,
+            context: Context,
+            publicKey: PublicKey,
+            data: any[]
+        ): CipherText {
             ////////////////////////
             // Instances
             ////////////////////////
@@ -148,16 +164,15 @@ export default defineComponent({
             const encryptor = seal.Encryptor(context, publicKey);
 
             // Create a Decryptor to decrypt CipherTexts
-            const decryptor = seal.Decryptor(context, secretKey);
 
             // Encode data to a PlainText
             const plainTextA = encoder.encode(
-                Int32Array.from([1, 2, 3]) // This could also be a Uint32Array
+                Int32Array.from(data) // This could also be a Uint32Array
             );
 
             // An encryptor and decryptor also accept a cihperText and plainText
             // optional parameter. If not provided, an encryptor will
-            // return a new cipherText and a decyprtor will return a new plainText.
+            // return a new cipherText and a decryptor will return a new plainText.
             // If the optional parameter is specified, it will be modified and both
             // methods will return void.
             // Ex:
@@ -178,32 +193,87 @@ export default defineComponent({
                 // Encrypt a PlainText
                 const cipherTextA = encryptor.encrypt(plainTextA);
 
-                // Add CipherText B to CipherText A and store the sum in a destination CipherText
-                const cipherTextD = seal.CipherText();
-
-                if (cipherTextA && cipherTextD) {
-                    evaluator.add(cipherTextA, cipherTextA, cipherTextD);
-
-                    // Decrypt a CipherText
-                    const plainTextD = decryptor.decrypt(cipherTextD);
-
-                    if (plainTextD) {
-                        // `signed` defaults to 'true' if not specified and will return an Int32Array.
-                        // If you have encrypted a Uint32Array and wish to decrypt it, set
-                        // this to false.
-                        const decoded = encoder.decode(
-                            plainTextD,
-                            true // Can be omitted since this defaults to true.
-                        );
-
-                        console.log('decoded', decoded);
-                    }
+                if (cipherTextA) {
+                    return cipherTextA;
+                } else {
+                    throw new Error('Ciphertext could not be created.');
                 }
+                // // Add CipherText B to CipherText A and store the sum in a destination CipherText
+                // const cipherTextD = seal.CipherText();
+
+                // if (cipherTextA && cipherTextD) {
+                //     evaluator.add(cipherTextA, cipherTextA, cipherTextD);
+                // }
+            } else {
+                throw new Error('Plaintext could not be created.');
             }
         },
-    },
-    mounted: function() {
-        // this.performEncryptionTest();
+        decryptData(
+            seal: SEALLibrary,
+            context: Context,
+            secretKey: SecretKey,
+            encryptedData: CipherText
+        ): Int32Array | Uint32Array {
+            const decryptor = seal.Decryptor(context, secretKey);
+
+            // Create a BatchEncoder (only BFV SchemeType)
+            const encoder = seal.BatchEncoder(context);
+
+            // Decrypt a CipherText
+            const plainTextD = decryptor.decrypt(encryptedData);
+
+            if (plainTextD) {
+                // `signed` defaults to 'true' if not specified and will return an Int32Array.
+                // If you have encrypted a Uint32Array and wish to decrypt it, set
+                // this to false.
+                return encoder.decode(
+                    plainTextD,
+                    true // Can be omitted since this defaults to true.
+                );
+            } else {
+                throw new Error('Could not decrypt ciphertext.');
+            }
+        },
+        uploadedFile(files: FileList) {
+            Papa.parse(files[0], {
+                worker: true,
+                header: false,
+                complete: async result => {
+                    const chunks = chunkArray(result.data, CHUNK_SIZE);
+                    console.log('Chunks', chunks);
+                    const firstChunk = chunks[0];
+                    // TODO: find elegant way to handle this.
+                    const valueColumn = firstChunk.map((val: any) => val[5]);
+                    valueColumn.shift();
+                    const { seal, context } = await this.initFHEContext();
+                    const { publicKey, secretKey } = this.generateKeys(seal, context);
+                    const serializedSecretKey = secretKey.save();
+                    console.log(serializedSecretKey);
+                    const encryptedValues = this.encryptData(seal, context, publicKey, valueColumn);
+                    const decryptedValues = this.decryptData(
+                        seal,
+                        context,
+                        secretKey,
+                        encryptedValues!
+                    );
+                    console.log(decryptedValues);
+                },
+            });
+        },
+        async testWebsocket() {
+            console.log('test');
+            const apiKeyResponse = await createAPIKey();
+            console.log(apiKeyResponse);
+            const ws = new WebSocket(WSS_SERVER_URL, apiKeyResponse.data);
+
+            ws.onopen = function open() {
+                console.log('connected');
+            };
+
+            ws.onclose = function close() {
+                console.log('closed');
+            };
+        },
     },
 });
 </script>

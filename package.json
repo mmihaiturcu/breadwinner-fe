@@ -10,6 +10,7 @@
     "dependencies": {
         "axios": "^0.23.0",
         "core-js": "^3.6.5",
+        "isomorphic-ws": "^4.0.1",
         "lodash": "^4.17.21",
         "node-seal": "^4.6.1",
         "papaparse": "^5.3.1",
@@ -17,9 +18,11 @@
         "sass-loader": "^8.0.2",
         "vue": "^3.0.0",
         "vue-svg-inline-plugin": "^2.2.0",
-        "vuex": "^4.0.0"
+        "vuex": "^4.0.0",
+        "ws": "^8.4.0"
     },
     "devDependencies": {
+        "@types/ws": "^8.2.2",
         "@types/papaparse": "^5.3.1",
         "@typescript-eslint/eslint-plugin": "^4.18.0",
         "@typescript-eslint/parser": "^4.18.0",
