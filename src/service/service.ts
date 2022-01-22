@@ -1,6 +1,6 @@
-import { AxiosResponse } from 'axios';
-import { api } from 'src/boot/axios';
+import { HTTPS_SERVER_URL } from '@/utils/constants';
+import axios, { AxiosResponse } from 'axios';
 
 export async function createAPIKey(): Promise<AxiosResponse<string>> {
-    return api.post('apiKey/create');
+    return axios.post(`${HTTPS_SERVER_URL}/apiKey/create`);
 }
