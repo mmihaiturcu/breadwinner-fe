@@ -1,62 +1,52 @@
 {
     "name": "breadwinner-fe",
-    "version": "0.1.0",
+    "version": "0.0.1",
+    "description": "Distributed Processing app secured by FHE",
+    "productName": "Breadwinner",
+    "author": "Mihai Turcu <mihai.turcu@cctech.ai>",
     "private": true,
     "scripts": {
-        "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint"
+        "lint": "eslint --ext .js,.ts,.vue ./",
+        "test": "echo \"No test specified\" && exit 0",
+        "serve": "quasar dev -m spa"
     },
     "dependencies": {
-        "axios": "^0.23.0",
+        "@quasar/extras": "^1.0.0",
+        "axios": "^0.21.1",
         "core-js": "^3.6.5",
         "isomorphic-ws": "^4.0.1",
+        "ws": "^8.4.0",
         "lodash": "^4.17.21",
         "node-seal": "^4.6.1",
         "papaparse": "^5.3.1",
-        "sass": "^1.22.0",
-        "sass-loader": "^8.0.2",
-        "vue": "^3.0.0",
-        "vue-svg-inline-plugin": "^2.2.0",
-        "vuex": "^4.0.0",
-        "ws": "^8.4.0"
+        "quasar": "^2.0.0"
     },
     "devDependencies": {
+        "@babel/eslint-parser": "^7.13.14",
+        "@quasar/app": "^3.0.0",
         "@types/ws": "^8.2.2",
         "@types/papaparse": "^5.3.1",
-        "@typescript-eslint/eslint-plugin": "^4.18.0",
-        "@typescript-eslint/parser": "^4.18.0",
-        "@vue/cli-plugin-babel": "~4.5.0",
-        "@vue/cli-plugin-eslint": "~4.5.0",
-        "@vue/cli-plugin-typescript": "^4.5.14",
-        "@vue/cli-service": "~4.5.0",
-        "@vue/compiler-sfc": "^3.0.0",
-        "@vue/eslint-config-typescript": "^7.0.0",
-        "babel-eslint": "^10.1.0",
-        "eslint": "^6.7.2",
-        "eslint-plugin-vue": "^7.0.0",
-        "typescript": "~4.1.5"
-    },
-    "eslintConfig": {
-        "root": true,
-        "env": {
-            "node": true
-        },
-        "extends": [
-            "plugin:vue/vue3-essential",
-            "eslint:recommended",
-            "@vue/typescript",
-            "plugin:@typescript-eslint/recommended"
-        ],
-        "parser": "vue-eslint-parser",
-        "parserOptions": {
-            "parser": "@typescript-eslint/parser"
-        },
-        "rules": {}
+        "@types/node": "^12.20.21",
+        "@typescript-eslint/eslint-plugin": "^5.10.0",
+        "@typescript-eslint/parser": "^5.10.0",
+        "eslint": "^7.14.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-vue": "^7.0.0"
     },
     "browserslist": [
-        "> 1%",
-        "last 2 versions",
-        "not dead"
-    ]
+        "last 10 Chrome versions",
+        "last 10 Firefox versions",
+        "last 4 Edge versions",
+        "last 7 Safari versions",
+        "last 8 Android versions",
+        "last 8 ChromeAndroid versions",
+        "last 8 FirefoxAndroid versions",
+        "last 10 iOS versions",
+        "last 5 Opera versions"
+    ],
+    "engines": {
+        "node": ">= 12.22.1",
+        "npm": ">= 6.13.4",
+        "yarn": ">= 1.21.1"
+    }
 }
