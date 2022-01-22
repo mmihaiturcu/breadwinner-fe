@@ -1,1 +1,21 @@
 // app global css in SCSS form
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background-color: #13001c;
+}
+
+.spark {
+    background-color: #0acf7a;
+    font-family: 'Helvetica', sans-serif;
+    visibility: hidden;
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 30%;
+    box-shadow: 0 0 5px #007843;
+}
