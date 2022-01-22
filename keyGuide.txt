@@ -1,2 +1,0 @@
-keytool -genkeypair -alias breadwinner-fe -keyalg RSA -keysize 4096 -storetype PKCS12 -keystore breadwinner-fe.p12 -storepass WinnerWinnerBreadDinner
-openssl pkcs12 -info -in breadwinner-fe.p12 -nodes
