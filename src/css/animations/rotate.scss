@@ -1,0 +1,9 @@
+@keyframes rotate360 {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@mixin rotate360 {
+    animation: 2s rotate360 infinite linear;
+}
