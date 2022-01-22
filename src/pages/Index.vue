@@ -1,6 +1,5 @@
 <template>
     <q-page ref="pageRef" class="row items-center justify-evenly">
-        <canvas class="particles-canvas" ref="canvasRef" />
         <Logo />
     </q-page>
 </template>
@@ -391,9 +390,6 @@ export default defineComponent({
     },
     mounted() {
         this.createParticle();
-        const canvas = this.$refs.canvasRef as HTMLCanvasElement;
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
     },
 });
 </script>
