@@ -9,6 +9,7 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers');
+const path = require('path');
 
 module.exports = configure(function (ctx) {
     return {
@@ -85,6 +86,10 @@ module.exports = configure(function (ctx) {
             },
             port: 8080,
             open: true, // opens browser window automatically
+            https: {
+                key: path.join(__dirname, 'private.pem'),
+                cert: path.join(__dirname, 'certificate.pem'),
+            },
         },
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
