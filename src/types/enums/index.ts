@@ -1,3 +1,2 @@
-import { MIMEType } from './MIMEType';
-
-export { MIMEType };
+export { MIMEType } from './MIMEType';
+export { Role } from './Role';

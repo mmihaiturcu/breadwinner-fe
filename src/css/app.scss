@@ -1,4 +1,10 @@
 // app global css in SCSS form
+
+@font-face {
+    font-family: gentona-bold;
+    src: url(./fonts/gentona-extrabold.woff);
+}
+
 html,
 body {
     height: 100%;
@@ -18,4 +24,15 @@ body {
     height: 4px;
     border-radius: 30%;
     box-shadow: 0 0 5px #007843;
+}
+
+.gentona-bold {
+    font-family: 'gentona-bold';
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
 }
