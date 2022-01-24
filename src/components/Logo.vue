@@ -8,7 +8,7 @@
             width="600"
             height="520"
         >
-            <polygon points="300,0 600,520 0,520" fill="#007843" />
+            <polygon points="300,0 600,520 0,520" fill="#00A652" />
         </svg>
         <svg
             class="left-pickaxe"
