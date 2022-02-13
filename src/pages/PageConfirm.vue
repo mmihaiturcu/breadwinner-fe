@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import FinishAccountForm from 'src/components/FinishAccountForm.vue';
+import FinishAccountForm from 'src/components/authentication/FinishAccountForm.vue';
 
 export default defineComponent({
     name: 'PageConfirm',

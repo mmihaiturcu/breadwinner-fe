@@ -20,4 +20,7 @@ export default {
         passwordBetweenMinAndMax: 'The password must be between 8 and 20 characters long.',
         passwordsIdentical: 'The passwords must be identical.',
     },
+    navigation: {
+        apiKeys: 'API Keys',
+    },
 };
