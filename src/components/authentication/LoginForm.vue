@@ -85,7 +85,7 @@ export default defineComponent({
                         userDetails: response.data,
                         isLoggedIn: true,
                     });
-                    await this.$router.replace({ path: '/dashboard' });
+                    await this.$router.replace({ path: '/main/dashboard' });
                 })
                 .catch((error: AxiosError) => {
                     if (error.response) {

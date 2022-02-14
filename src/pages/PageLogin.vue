@@ -21,7 +21,8 @@
 import { defineComponent } from 'vue';
 import Logo from 'src/components/Logo.vue';
 import gsap, { Linear, Back, Power1 } from 'gsap';
-import AuthenticationForm from 'src/components/AuthenticationForm.vue';
+import AuthenticationForm from 'src/components/authentication/AuthenticationForm.vue';
+import { doNothing } from 'src/utils/helper';
 
 export default defineComponent({
     name: 'PageLogin',
@@ -86,10 +87,14 @@ export default defineComponent({
             }
             return easeThis;
         },
+        respawn(particle: gsap.TweenTarget) {
+            this.spawn(particle);
+        },
         spawn(particle: gsap.TweenTarget) {
-            var wholeDuration = (10 / this.speed) * (0.7 + Math.random() * 0.4),
-                delay = wholeDuration * Math.random(),
-                partialDuration = (wholeDuration + 1) * (0.2 + Math.random() * 0.3);
+            const wholeDuration = (10 / this.speed) * (0.7 + Math.random() * 0.4),
+                delay = wholeDuration * Math.random();
+            let partialDuration = (wholeDuration + 1) * (0.2 + Math.random() * 0.3);
+
             gsap.set(particle, {
                 y: this.range(this.start.yMin, this.start.yMax),
                 x: this.range(this.start.xMin, this.start.xMax),
@@ -140,7 +145,7 @@ export default defineComponent({
                 scale: this.range(this.end.scaleMin, this.end.scaleMax),
                 autoAlpha: this.range(this.end.opacityMin, this.end.opacityMax),
                 ease: Linear.easeNone,
-                onComplete: this.spawn,
+                onComplete: this.respawn,
                 onCompleteParams: [particle],
             });
         },
@@ -155,6 +160,10 @@ export default defineComponent({
     },
     mounted() {
         this.createParticle();
+    },
+    beforeUnmount() {
+        this.respawn = doNothing;
+        document.querySelectorAll('body > .spark').forEach((e) => e.remove());
     },
 });
 </script>

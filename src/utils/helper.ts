@@ -1,4 +1,4 @@
-export const chunkArray = function(array: unknown[], chunkSize: number): Array<Array<unknown>> {
+export const chunkArray = function (array: unknown[], chunkSize: number): Array<Array<unknown>> {
     const length = array.length;
     const chunks = new Array<Array<unknown>>(Math.ceil(length / chunkSize));
     let currentChunk = 0;
@@ -9,3 +9,7 @@ export const chunkArray = function(array: unknown[], chunkSize: number): Array<A
 
     return chunks;
 };
+
+export function doNothing() {
+    return;
+}

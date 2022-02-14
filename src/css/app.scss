@@ -1,3 +1,4 @@
+@import './quasar.variables.scss';
 // app global css in SCSS form
 
 @font-face {
@@ -35,4 +36,11 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+.accent-hover {
+    transition: color $hover-transition;
+    &:hover {
+        color: $accent;
+    }
 }

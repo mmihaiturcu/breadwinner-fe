@@ -20,4 +20,16 @@ export default {
         passwordBetweenMinAndMax: 'The password must be between 8 and 20 characters long.',
         passwordsIdentical: 'The passwords must be identical.',
     },
+    navigation: {
+        apiKeys: 'API Keys',
+    },
+    apiKeys: {
+        createdTitle: "It's dangerous to go alone, take this!",
+        createdMessage:
+            'Please make sure to place the API key somewhere safe, it will not be viewable after closing this dialog window.',
+        createdYourKeyIs: 'Your API key is: ',
+        copied: 'API key copied to clipboard',
+        notFound: 'No API key matching the supplied ID was found.',
+        deletedSuccessfully: 'The API key has been successfully deleted.',
+    },
 };

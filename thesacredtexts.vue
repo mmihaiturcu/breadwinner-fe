@@ -240,18 +240,16 @@ export default defineComponent({
             });
         },
         async testWebsocket() {
-            console.log('test');
-            const apiKeyResponse = await createAPIKey();
-            console.log(apiKeyResponse);
-            const ws = new WebSocket(process.env.BACKEND_WSS_URL, apiKeyResponse.data);
-
-            ws.onopen = function open() {
-                console.log('connected');
-            };
-
-            ws.onclose = function close() {
-                console.log('closed');
-            };
+            // console.log('test');
+            // const apiKeyResponse = await createAPIKey();
+            // console.log(apiKeyResponse);
+            // const ws = new WebSocket(process.env.BACKEND_WSS_URL, apiKeyResponse.data);
+            // ws.onopen = function open() {
+            //     console.log('connected');
+            // };
+            // ws.onclose = function close() {
+            //     console.log('closed');
+            // };
         },
     },
 });
