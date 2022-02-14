@@ -9,6 +9,8 @@ interface ApiKeyStoreState {
     apiKeys: APIKey[];
     showCreateApiKeyModal: boolean;
     createApiKeyRequest: CreateApiKeyRequest;
+    showReceiveAPIKeyModal: boolean;
+    newAPIKey: string;
 }
 
 const ApiKeyStoreState: ApiKeyStoreState = {
@@ -18,6 +20,8 @@ const ApiKeyStoreState: ApiKeyStoreState = {
         userId: -1,
         hostname: '',
     },
+    newAPIKey: '',
+    showReceiveAPIKeyModal: false,
 };
 
 export { ApiKeyStoreState };

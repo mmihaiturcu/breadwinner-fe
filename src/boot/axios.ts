@@ -35,7 +35,7 @@ export default boot(({ app }) => {
             if (error.message === 'Network Error') {
                 Notify.create({
                     type: 'negative',
-                    message: 'The connection to the server could not be established',
+                    message: 'The connection to the server could not be established.',
                 });
             }
 

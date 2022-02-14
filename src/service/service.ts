@@ -40,3 +40,7 @@ export async function getApiKeysForUser(userId: User['id']): Promise<AxiosRespon
 export async function createAPIKey(payload: CreateApiKeyRequest): Promise<AxiosResponse<string>> {
     return api.post('apiKey/create', payload);
 }
+
+export async function deleteAPIKey(id: APIKey['id']): Promise<AxiosResponse<void>> {
+    return api.delete(`apiKey/${id}`);
+}

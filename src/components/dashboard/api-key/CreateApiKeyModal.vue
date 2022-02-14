@@ -5,7 +5,7 @@
                 <div class="text-h6">Create API Key</div>
             </q-card-section>
             <q-card-section class="q-pt-none">
-                <q-form>
+                <q-form @submit="createApiKey">
                     <div class="q-pa-sm q-ma-sm">
                         <q-input
                             name="hostname"
@@ -27,13 +27,18 @@
                             </template>
                         </q-input>
                     </div>
+                    <q-card-actions align="center">
+                        <q-btn
+                            type="submit"
+                            label="Create"
+                            color="primary"
+                            icon="mdi-key-plus"
+                            :loading="loading"
+                        />
+                        <q-btn flat v-close-popup label="Cancel" />
+                    </q-card-actions>
                 </q-form>
             </q-card-section>
-
-            <q-card-actions align="center">
-                <q-btn label="Create" color="primary" icon="mdi-key-plus" @click="createApiKey" />
-                <q-btn flat v-close-popup label="Cancel" />
-            </q-card-actions>
         </q-card>
     </q-dialog>
 </template>
@@ -43,32 +48,43 @@ import { storeToRefs } from 'pinia';
 import { createAPIKey } from 'src/service/service';
 import { useUserStore } from 'src/stores';
 import { useApiKeyStore } from 'src/stores/apiKey';
-import { defineComponent } from 'vue';
+import { useGlobalI18n } from 'src/utils/hooks';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     name: 'CreateApiKeyModal',
     setup() {
         const apiKeyStore = useApiKeyStore();
         const userStore = useUserStore();
-        const { showCreateApiKeyModal, createApiKeyRequest } = storeToRefs(apiKeyStore);
+        const { showCreateApiKeyModal, createApiKeyRequest, newAPIKey, showReceiveAPIKeyModal } =
+            storeToRefs(apiKeyStore);
         const { userDetails } = storeToRefs(userStore);
+        const { t } = useGlobalI18n();
 
         return {
             showCreateApiKeyModal,
             createApiKeyRequest,
             userDetails,
+            newAPIKey,
             apiKeyStore,
+            t,
+            showReceiveAPIKeyModal,
+            loading: ref(false),
         };
     },
     methods: {
         async createApiKey() {
+            this.loading = true;
+
             const response = await createAPIKey({
                 hostname: this.createApiKeyRequest.hostname,
                 userId: this.userDetails.id,
             });
 
-            // TODO: Logic for displaying API key to user (dialog CARD window, make it look nice)
-            console.log(response.data);
+            this.loading = false;
+
+            this.newAPIKey = response.data;
+            this.showReceiveAPIKeyModal = true;
 
             // Refresh API keys list to include the new one, and hide this modal.
             await this.apiKeyStore.refreshApiKeys(this.userDetails.id);

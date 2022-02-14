@@ -23,4 +23,13 @@ export default {
     navigation: {
         apiKeys: 'API Keys',
     },
+    apiKeys: {
+        createdTitle: "It's dangerous to go alone, take this!",
+        createdMessage:
+            'Please make sure to place the API key somewhere safe, it will not be viewable after closing this dialog window.',
+        createdYourKeyIs: 'Your API key is: ',
+        copied: 'API key copied to clipboard',
+        notFound: 'No API key matching the supplied ID was found.',
+        deletedSuccessfully: 'The API key has been successfully deleted.',
+    },
 };
