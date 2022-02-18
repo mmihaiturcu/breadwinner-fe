@@ -65,17 +65,13 @@ export default defineComponent({
             apiKeyStore,
             t,
             formatDateSimple,
-        };
-    },
-    computed: {
-        columns() {
-            return [
+            columns: [
                 { name: 'actions', label: 'Actions', field: '', sortable: false },
                 { name: 'prefix', label: 'Prefix', field: 'prefix', sortable: true },
                 { name: 'hostname', label: 'Hostname', field: 'hostname', sortable: true },
                 { name: 'createdAt', label: 'Created at', field: 'createdAt', sortable: true },
-            ];
-        },
+            ],
+        };
     },
     methods: {
         openCreateApiKeyModal() {

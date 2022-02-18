@@ -22,6 +22,7 @@ export default {
     },
     navigation: {
         apiKeys: 'API Keys',
+        payloads: 'Payloads',
     },
     apiKeys: {
         createdTitle: "It's dangerous to go alone, take this!",

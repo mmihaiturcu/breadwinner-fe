@@ -21,27 +21,36 @@ const routes: RouteRecordRaw[] = [
                     { path: '/confirmation', component: () => import('src/pages/PageConfirm.vue') },
                 ],
             },
+        ],
+    },
+
+    {
+        path: '/main',
+        component: () => import('layouts/MainLayout.vue'),
+        children: [
+            { path: '', redirect: 'dashboard' },
             {
-                path: 'main',
-                component: () => import('layouts/MainLayout.vue'),
-                children: [
-                    { path: '', redirect: 'dashboard' },
-                    {
-                        path: 'dashboard',
-                        component: () => import('src/pages/PageDashboard.vue'),
-                        meta: {
-                            requiresAuthentication: true,
-                        },
-                    },
-                    {
-                        name: 'apiKeys',
-                        path: 'api-keys',
-                        component: () => import('src/pages/PageApiKeys.vue'),
-                        meta: {
-                            requiresAuthentication: true,
-                        },
-                    },
-                ],
+                path: 'dashboard',
+                component: () => import('src/pages/PageDashboard.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                },
+            },
+            {
+                name: 'apiKeys',
+                path: 'api-keys',
+                component: () => import('src/pages/PageApiKeys.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                },
+            },
+            {
+                name: 'payloads',
+                path: 'payloads',
+                component: () => import('src/pages/PagePayloads.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                },
             },
         ],
     },
