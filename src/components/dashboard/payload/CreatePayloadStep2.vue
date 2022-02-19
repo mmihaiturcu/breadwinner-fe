@@ -18,7 +18,7 @@
             <q-icon
                 name="mdi-plus"
                 size="md"
-                class="accent-primary cursor-pointer"
+                class="hover-primary cursor-pointer"
                 @click="addNewPayloadTab"
             />
         </q-tabs>
@@ -31,12 +31,11 @@
                 :key="payloadTab.name"
                 :name="payloadTab.name"
             >
-                <q-splitter v-model="splitTabRatio">
+                <q-splitter v-model="splitTabRatio" style="height: 800px">
                     <template v-slot:before>
                         <q-table
                             class="dataset-table"
                             row-key="index"
-                            style="height: 800px"
                             title="Dataset"
                             :rows="uploadedDataset.data"
                             :columns="columns"
@@ -52,14 +51,63 @@
 
                     <template v-slot:after>
                         <div class="q-pa-md">
-                            <q-toolbar class="bg-primary">
+                            <q-select
+                                class="header-select"
+                                name="numericHeaderIndex"
+                                label="Dataset property"
+                                :options="numericHeaderOptions"
+                                v-model="payloadTab.state.selectedHeader"
+                            >
+                                <template v-slot:option="scope">
+                                    <q-item v-bind="scope.itemProps">
+                                        <q-item-section avatar>
+                                            <q-icon :name="scope.opt.icon" />
+                                        </q-item-section>
+                                        <q-item-section>
+                                            <q-item-label>{{ scope.opt.label }}</q-item-label>
+                                        </q-item-section>
+                                    </q-item>
+                                </template>
+                            </q-select>
+
+                            <q-toolbar class="q-mt-md bg-primary">
                                 <q-toolbar-title class="text-center text-white">
                                     Operations
                                 </q-toolbar-title>
                             </q-toolbar>
 
-                            <div class="q-mt-md column items-center">
+                            <div class="operations-container scroll">
+                                <q-list bordered separator>
+                                    <q-item
+                                        v-for="(operation, index) in payloadTab.state.operations"
+                                        :key="index"
+                                    >
+                                        <q-item-section avatar>
+                                            <q-icon :name="operation.operationObject.icon" />
+                                        </q-item-section>
+                                        <q-item-section>
+                                            <q-item-label>{{
+                                                operation.operands
+                                                    .map((operand) => operand.label)
+                                                    .join(', ')
+                                            }}</q-item-label>
+                                        </q-item-section>
+                                        <q-item-section
+                                            v-if="index === payloadTab.state.operations.length - 1"
+                                            side
+                                        >
+                                            <q-icon
+                                                class="hover-accent cursor-pointer"
+                                                name="mdi-delete"
+                                                @click="removeLatestOperation"
+                                            />
+                                        </q-item-section>
+                                    </q-item>
+                                </q-list>
+
                                 <q-btn
+                                    class="q-mt-md full-width"
+                                    :disable="!payloadTab.state.selectedHeader"
                                     color="primary"
                                     icon="mdi-plus"
                                     @click="openAddOperationModal"
@@ -76,7 +124,7 @@
 
 <script lang="ts">
 import { storeToRefs } from 'pinia';
-import { QTableProps } from 'quasar';
+import { QSelectProps, QTableProps } from 'quasar';
 import { usePayloadStore } from 'src/stores';
 import { defineComponent, ref } from 'vue';
 
@@ -84,7 +132,8 @@ export default defineComponent({
     name: 'CreatePayloadStep1',
     setup() {
         const payloadStore = usePayloadStore();
-        const { uploadedDataset, payloadTabs, currentPayloadTabName } = storeToRefs(payloadStore);
+        const { uploadedDataset, payloadTabs, currentPayloadTabName, currentPayloadTab } =
+            storeToRefs(payloadStore);
 
         return {
             uploadedDataset,
@@ -95,17 +144,25 @@ export default defineComponent({
             payloadTabs,
             currentPayloadTabName,
             splitTabRatio: ref(80),
+            currentPayloadTab,
         };
     },
     computed: {
         columns(): QTableProps['columns'] {
             return this.uploadedDataset.headers.map((header, index) => {
                 return {
-                    name: header,
-                    label: header,
+                    name: header.label,
+                    label: header.label,
                     field: (row: unknown[]) => row[index],
                 };
             });
+        },
+        numericHeaderOptions(): QSelectProps['options'] {
+            return this.payloadStore.numericHeaders.map((header, index) => ({
+                label: header.label,
+                value: index,
+                icon: 'mdi-numeric',
+            }));
         },
     },
     methods: {
@@ -115,6 +172,11 @@ export default defineComponent({
                     name: `Payload ${this.payloadTabs.length + 1}`,
                     state: {
                         selectedRows: [],
+                        selectedHeader: {
+                            label: '',
+                            isNumeric: false,
+                        },
+                        operations: [],
                     },
                 });
             });
@@ -124,6 +186,9 @@ export default defineComponent({
                 showAddOperationModal: true,
             });
         },
+        removeLatestOperation() {
+            this.currentPayloadTab.state.operations.pop();
+        },
     },
 });
 </script>
@@ -132,5 +197,13 @@ export default defineComponent({
 .dataset-table {
     width: 100%;
     height: 100%;
+}
+
+.header-select {
+    width: 100%;
+}
+
+.operations-container {
+    max-height: 100%;
 }
 </style>

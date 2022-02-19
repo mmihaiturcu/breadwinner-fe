@@ -14,7 +14,7 @@
                     <div class="column justify-center items-center">
                         <q-icon
                             size="md"
-                            class="accent-hover cursor-pointer"
+                            class="hover-accent cursor-pointer"
                             name="mdi-delete"
                             @click="deleteAPIKey(props.row.id)"
                         >

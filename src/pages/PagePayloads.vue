@@ -40,7 +40,7 @@
                 </div>
             </template>
         </q-table>
-        <CreatePayloadModal v-show="showCreatePayloadModal" />
+        <CreatePayloadModal v-if="showCreatePayloadModal" />
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
             <q-btn fab icon="add" color="accent" @click="openAddPayloadModal" />
         </q-page-sticky>
@@ -55,6 +55,7 @@ import CreatePayloadModal from 'src/components/dashboard/payload/CreatePayloadMo
 
 export default defineComponent({
     name: 'PagePayloads',
+    components: { CreatePayloadModal },
     setup() {
         const payloadStore = usePayloadStore();
         const { payloads, showCreatePayloadModal } = storeToRefs(payloadStore);
@@ -74,7 +75,6 @@ export default defineComponent({
             this.showCreatePayloadModal = true;
         },
     },
-    components: { CreatePayloadModal },
 });
 </script>
 

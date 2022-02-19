@@ -34,6 +34,13 @@ export { PayloadStoreState };
 export const usePayloadStore = defineStore({
     id: storeID,
     state: (): PayloadStoreState => PayloadStoreState,
+    getters: {
+        numericHeaders: (state) =>
+            state.uploadedDataset.headers.filter((header) => header.isNumeric),
+        currentPayloadTab: (state) =>
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            state.payloadTabs.find((tab) => tab.name === state.currentPayloadTabName)!,
+    },
     actions: {
         async refreshPayloads(userId: User['id']) {
             const response = await getPayloadsForUser(userId);

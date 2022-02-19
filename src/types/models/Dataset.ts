@@ -1,4 +1,6 @@
+import { Header } from '.';
+
 export interface Dataset {
-    headers: string[];
+    headers: Header[];
     data: unknown[];
 }

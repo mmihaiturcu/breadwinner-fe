@@ -4,3 +4,7 @@ export { APIKey } from './APIKey';
 export { Payload } from './Payload';
 export { Dataset } from './Dataset';
 export { PayloadTab } from './PayloadTab';
+export { Header } from './Header';
+export { DefinedOperation } from './DefinedOperation';
+export { Operation } from './Operation';
+export { Operand } from './Operand';

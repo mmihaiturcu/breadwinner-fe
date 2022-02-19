@@ -34,18 +34,18 @@ input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
 }
 
-.accent-hover,
-.accent-primary {
+.hover-accent,
+.hover-primary {
     transition: color $hover-transition;
 }
 
-.accent-hover {
+.hover-accent {
     &:hover {
         color: $accent;
     }
 }
 
-.accent-primary {
+.hover-primary {
     &:hover {
         color: $primary;
     }

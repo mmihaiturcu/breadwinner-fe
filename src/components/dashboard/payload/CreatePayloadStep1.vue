@@ -44,21 +44,36 @@ export default defineComponent({
                 Papa.parse(this.uploadedFile, {
                     worker: true,
                     header: false,
-
-                    complete: (result) => {
-                        const headers = result.data.shift() as string[];
+                    dynamicTyping: true,
+                    complete: (result: Papa.ParseResult<unknown[]>) => {
+                        const headers = result.data.shift();
                         result.data.forEach(
                             (data: unknown, index) => ((data as { index: number }).index = index)
                         );
                         this.payloadStore.$patch({
                             uploadedDataset: {
-                                data: result.data as unknown[][],
-                                headers,
+                                data: result.data,
+                                headers: headers?.map((header, index) => {
+                                    return {
+                                        label: header as string,
+                                        isNumeric: typeof result.data[0][index] === 'number',
+                                    };
+                                }),
                             },
                             currentPayloadCreationStep: this.currentPayloadCreationStep + 1,
-                            payloadTabs: [{ name: 'Payload 1', state: { selectedRows: [] } }],
+                            payloadTabs: [
+                                {
+                                    name: 'Payload 1',
+                                    state: {
+                                        selectedRows: [],
+                                        selectedHeader: null,
+                                        operations: [],
+                                    },
+                                },
+                            ],
                             currentPayloadTabName: 'Payload 1',
                         });
+                        console.log(this.payloadStore.uploadedDataset);
                         // const chunks: number[][][] = chunkArray(
                         //     result.data,
                         //     CHUNK_SIZE
