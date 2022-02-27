@@ -23,6 +23,7 @@ export default {
     navigation: {
         apiKeys: 'API Keys',
         payloads: 'Payloads',
+        dataProcessingTest: 'Data processing test',
     },
     apiKeys: {
         createdTitle: "It's dangerous to go alone, take this!",
@@ -32,5 +33,14 @@ export default {
         copied: 'API key copied to clipboard',
         notFound: 'No API key matching the supplied ID was found.',
         deletedSuccessfully: 'The API key has been successfully deleted.',
+    },
+    payload: {
+        keysCreatedTitle: 'Your key pair',
+        keysCreatedMessage:
+            'In order to be able to decrypt the results of the payloads that you have created, you will need to provide this key pair.',
+        keysCreatedDisclaimerTitle: 'Warning',
+        keysCreatedDisclaimer:
+            'Make sure to save and safeguard this keypair, you will not be able to retrieve it after closing this dialog window.',
+        downloadKeyPair: 'Download key pair',
     },
 };

@@ -23,7 +23,6 @@ const routes: RouteRecordRaw[] = [
             },
         ],
     },
-
     {
         path: '/main',
         component: () => import('layouts/MainLayout.vue'),
@@ -40,6 +39,14 @@ const routes: RouteRecordRaw[] = [
                 name: 'apiKeys',
                 path: 'api-keys',
                 component: () => import('src/pages/PageApiKeys.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                },
+            },
+            {
+                name: 'dataProcessingTest',
+                path: 'data-processing-test',
+                component: () => import('src/pages/PageDataProcessingTest.vue'),
                 meta: {
                     requiresAuthentication: true,
                 },

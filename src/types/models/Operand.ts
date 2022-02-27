@@ -1,4 +1,4 @@
 export interface Operand {
     label: string;
-    value: number;
+    value: string | number; // either 'data' or step results such as 0, 1, 2
 }

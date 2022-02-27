@@ -1,6 +1,7 @@
 <template>
     <q-page class="column q-pa-md">
         <q-table
+            class="payloads-table"
             title="Payloads"
             :rows="payloads"
             :columns="columns"
@@ -21,7 +22,14 @@
                     class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition"
                     :style="props.selected ? 'transform: scale(0.95);' : ''"
                 >
-                    <q-card :class="props.selected ? 'bg-grey-2' : ''">
+                    <q-card
+                        class="payload-card"
+                        :class="{
+                            'bg-grey-2': props.selected,
+                            'processing-complete': props.row.progress === 1,
+                        }"
+                    >
+                        <Logo class="payload-breadwinner-logo" />
                         <q-card-section>
                             <q-checkbox dense v-model="props.selected" :label="props.row.name" />
                         </q-card-section>
@@ -36,11 +44,22 @@
                                 </q-item-section>
                             </q-item>
                         </q-list>
+                        <q-separator />
+                        <q-card-section>
+                            <q-linear-progress
+                                rounded
+                                stripe
+                                size="20px"
+                                :value="props.row.progress"
+                                :color="props.row.progress === 1 ? 'primary' : 'accent'"
+                            />
+                        </q-card-section>
                     </q-card>
                 </div>
             </template>
         </q-table>
         <CreatePayloadModal v-if="showCreatePayloadModal" />
+        <ShowKeyPairModal v-if="showKeyPairModal" />
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
             <q-btn fab icon="add" color="accent" @click="openAddPayloadModal" />
         </q-page-sticky>
@@ -52,22 +71,30 @@ import { storeToRefs } from 'pinia';
 import { usePayloadStore } from 'src/stores';
 import { defineComponent, ref } from 'vue';
 import CreatePayloadModal from 'src/components/dashboard/payload/CreatePayloadModal.vue';
+import ShowKeyPairModal from 'src/components/dashboard/payload/ShowKeyPairModal.vue';
+import Logo from 'src/components/Logo.vue';
 
 export default defineComponent({
     name: 'PagePayloads',
-    components: { CreatePayloadModal },
+    components: { CreatePayloadModal, ShowKeyPairModal, Logo },
     setup() {
         const payloadStore = usePayloadStore();
-        const { payloads, showCreatePayloadModal } = storeToRefs(payloadStore);
+        const { payloads, showCreatePayloadModal, showKeyPairModal } = storeToRefs(payloadStore);
         return {
             payloads,
             columns: [
-                { name: 'prefix', label: 'Prefix', field: 'prefix', sortable: true },
-                { name: 'hostname', label: 'Hostname', field: 'hostname', sortable: true },
-                { name: 'createdAt', label: 'Created at', field: 'createdAt', sortable: true },
+                { name: 'noChunks', label: 'Number of chunks', field: 'noChunks', sortable: true },
+                {
+                    name: 'totalDataLength',
+                    label: 'Total input data length',
+                    field: 'totalDataLength',
+                    sortable: true,
+                },
             ],
             searchValue: ref(''),
             showCreatePayloadModal,
+            showKeyPairModal,
+            payloadStore,
         };
     },
     methods: {
@@ -75,10 +102,14 @@ export default defineComponent({
             this.showCreatePayloadModal = true;
         },
     },
+    async created() {
+        await this.payloadStore.refreshPayloads();
+    },
 });
 </script>
 
 <style scoped lang="scss">
+@use 'sass:math';
 @import 'src/css/quasar.variables.scss';
 
 $list-header-height: 48px;
@@ -114,5 +145,28 @@ $list-header-height: 48px;
     gap: 10px;
     padding: 18px;
     justify-content: center;
+}
+
+$logo-size: 50px;
+
+.payload-breadwinner-logo {
+    --size: #{$logo-size};
+    position: absolute;
+    left: calc(50% - #{$logo-size / 2});
+    top: 10px;
+}
+.payload-card {
+    &.processing-complete {
+        .payload-breadwinner-logo {
+            :deep(svg) {
+                animation-play-state: paused;
+            }
+        }
+    }
+}
+:deep(.payloads-table) {
+    .q-table__middle {
+        margin-bottom: 20px;
+    }
 }
 </style>

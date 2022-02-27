@@ -29,6 +29,7 @@
                     active-icon="mdi-help-rhombus"
                     :done="currentPayloadCreationStep > 3"
                 >
+                    <CreatePayloadStep3 />
                 </q-step>
             </q-stepper>
             <AddOperationModal v-if="showAddOperationModal" />
@@ -43,6 +44,7 @@ import { useGlobalI18n } from 'src/utils/hooks';
 import { defineComponent } from 'vue';
 import CreatePayloadStep1 from './CreatePayloadStep1.vue';
 import CreatePayloadStep2 from './CreatePayloadStep2.vue';
+import CreatePayloadStep3 from './CreatePayloadStep3.vue';
 import AddOperationModal from './AddOperationModal.vue';
 
 export default defineComponent({
@@ -50,6 +52,7 @@ export default defineComponent({
     components: {
         CreatePayloadStep1,
         CreatePayloadStep2,
+        CreatePayloadStep3,
         AddOperationModal,
     },
     setup() {

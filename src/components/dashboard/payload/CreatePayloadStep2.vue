@@ -119,6 +119,14 @@
                 </q-splitter>
             </q-tab-panel>
         </q-tab-panels>
+        <q-stepper-navigation align="center">
+            <q-btn
+                color="primary"
+                label="Next"
+                icon="mdi-arrow-right-bold"
+                @click="currentPayloadCreationStep += 1"
+            />
+        </q-stepper-navigation>
     </div>
 </template>
 
@@ -132,8 +140,13 @@ export default defineComponent({
     name: 'CreatePayloadStep1',
     setup() {
         const payloadStore = usePayloadStore();
-        const { uploadedDataset, payloadTabs, currentPayloadTabName, currentPayloadTab } =
-            storeToRefs(payloadStore);
+        const {
+            uploadedDataset,
+            payloadTabs,
+            currentPayloadTabName,
+            currentPayloadTab,
+            currentPayloadCreationStep,
+        } = storeToRefs(payloadStore);
 
         return {
             uploadedDataset,
@@ -145,6 +158,7 @@ export default defineComponent({
             currentPayloadTabName,
             splitTabRatio: ref(80),
             currentPayloadTab,
+            currentPayloadCreationStep,
         };
     },
     computed: {
@@ -158,9 +172,9 @@ export default defineComponent({
             });
         },
         numericHeaderOptions(): QSelectProps['options'] {
-            return this.payloadStore.numericHeaders.map((header, index) => ({
+            return this.payloadStore.numericHeaders.map((header) => ({
                 label: header.label,
-                value: index,
+                value: header.value,
                 icon: 'mdi-numeric',
             }));
         },
@@ -174,6 +188,7 @@ export default defineComponent({
                         selectedRows: [],
                         selectedHeader: {
                             label: '',
+                            value: -1,
                             isNumeric: false,
                         },
                         operations: [],

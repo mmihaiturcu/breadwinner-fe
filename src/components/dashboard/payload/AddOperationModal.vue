@@ -1,5 +1,5 @@
 <template>
-    <q-dialog v-model="showAddOperationModal">
+    <q-dialog v-model="showAddOperationModal" persistent>
         <q-card class="add-operation-modal-card-container">
             <q-card-section>
                 <div class="text-h6">Add operation</div>
@@ -114,7 +114,7 @@ export default defineComponent({
             return [
                 {
                     label: this.currentPayloadTab.state.selectedHeader!.label,
-                    value: -1,
+                    value: 'data',
                     icon: 'mdi-numeric',
                 },
                 ...this.currentPayloadTab.state.operations.map((operation, index) => ({

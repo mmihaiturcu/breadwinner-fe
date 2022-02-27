@@ -1,6 +1,8 @@
+import { Chunk } from '.';
+
 export interface Payload {
-    noProcessedChunks: number;
-    totalChunks: number;
-    uploadedAt: Date;
-    schema: Record<string, unknown>;
+    id: number;
+    jsonSchema: string;
+    dataSupplierId: number;
+    chunks: Chunk[];
 }

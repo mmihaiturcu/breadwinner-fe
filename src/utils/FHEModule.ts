@@ -1,82 +1,88 @@
-<script lang="ts">
 import SEAL from 'node-seal';
-import Papa from 'papaparse';
 
-import { chunkArray } from 'src/utils/helper';
-import { CHUNK_SIZE } from 'src/utils/constants';
 import { SEALLibrary } from 'node-seal/implementation/seal';
 import { Context } from 'node-seal/implementation/context';
 import { PublicKey } from 'node-seal/implementation/public-key';
 import { SecretKey } from 'node-seal/implementation/secret-key';
 import { CipherText } from 'node-seal/implementation/cipher-text';
-import { createAPIKey } from 'src/service/service';
-import { defineComponent } from 'vue';
 
-export default defineComponent({
-    methods: {
-        async initFHEContext(): Promise<{ seal: SEALLibrary; context: Context }> {
-            const seal = await SEAL();
-            seal.SchemeType.bfv;
-            const schemeType = seal.SchemeType.bfv;
-            const securityLevel = seal.SecurityLevel.tc128;
-            const polyModulusDegree = 4096;
-            const bitSizes = [36, 36, 37];
-            const bitSize = 20;
+export class FHEModule {
+    public static instance: FHEModule;
+    public seal: null | SEALLibrary;
+    public context: null | Context;
+    public publicKey: null | PublicKey;
+    public privateKey: null | SecretKey;
 
-            const encParms = seal.EncryptionParameters(schemeType);
+    private constructor() {
+        this.seal = null;
+        this.context = null;
+        this.publicKey = null;
+        this.privateKey = null;
+    }
 
-            // Set the PolyModulusDegree
-            encParms.setPolyModulusDegree(polyModulusDegree);
+    async initFHEContext(): Promise<void> {
+        const seal = await SEAL();
+        seal.SchemeType.bfv;
+        const schemeType = seal.SchemeType.bfv;
+        const securityLevel = seal.SecurityLevel.tc128;
+        const polyModulusDegree = 4096;
+        const bitSizes = [36, 36, 37];
+        const bitSize = 20;
 
-            // Create a suitable set of CoeffModulus primes
-            encParms.setCoeffModulus(
-                seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes))
+        const encParms = seal.EncryptionParameters(schemeType);
+
+        // Set the PolyModulusDegree
+        encParms.setPolyModulusDegree(polyModulusDegree);
+
+        // Create a suitable set of CoeffModulus primes
+        encParms.setCoeffModulus(
+            seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes))
+        );
+
+        // Set the PlainModulus to a prime of bitSize 20.
+        encParms.setPlainModulus(seal.PlainModulus.Batching(polyModulusDegree, bitSize));
+
+        ////////////////////////
+        // Context
+        ////////////////////////
+
+        // Create a new Context
+        const context = seal.Context(
+            encParms, // Encryption Parameters
+            true, // ExpandModChain
+            securityLevel // Enforce a security level
+        );
+
+        if (!context.parametersSet()) {
+            throw new Error(
+                'Could not set the parameters in the given context. Please try different encryption parameters.'
             );
+        }
 
-            // Set the PlainModulus to a prime of bitSize 20.
-            encParms.setPlainModulus(seal.PlainModulus.Batching(polyModulusDegree, bitSize));
-
-            ////////////////////////
-            // Context
-            ////////////////////////
-
-            // Create a new Context
-            const context = seal.Context(
-                encParms, // Encryption Parameters
-                true, // ExpandModChain
-                securityLevel // Enforce a security level
-            );
-
-            if (!context.parametersSet()) {
-                throw new Error(
-                    'Could not set the parameters in the given context. Please try different encryption parameters.'
-                );
-            }
-
-            return {
-                seal,
-                context,
-            };
-        },
-        generateKeys(
-            seal: SEALLibrary,
-            context: Context
-        ): { publicKey: PublicKey; secretKey: SecretKey } {
+        this.seal = seal;
+        this.context = context;
+    }
+    generateKeys(): {
+        publicKey: string;
+        privateKey: string;
+    } {
+        if (this.seal && this.context) {
             ////////////////////////
             // Keys
             ////////////////////////
 
             // Create a new KeyGenerator (creates a new keypair internally)
-            const keyGenerator = seal.KeyGenerator(context);
+            const keyGenerator = this.seal.KeyGenerator(this.context);
 
-            const secretKey = keyGenerator.secretKey();
-            const publicKey = keyGenerator.createPublicKey();
+            this.privateKey = keyGenerator.secretKey();
+            this.publicKey = keyGenerator.createPublicKey();
             // const relinKey = keyGenerator.createRelinKeys();
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
 
+            // TODO: show this to user
             // Saving a key to a string is the same for each type of key
-            const secretBase64Key = secretKey.save();
+            // const secretBase64Key = secretKey.save();
             // const publicBase64Key = publicKey.save();
             // const relinBase64Key = relinKey.save();
             // // Please note saving Galois keys can take an even longer time and the output is **very** large.
@@ -84,8 +90,8 @@ export default defineComponent({
 
             // Loading a key from a base64 string is the same for each type of key
             // Load from the base64 encoded string
-            const UploadedSecretKey = seal.SecretKey();
-            UploadedSecretKey.load(context, secretBase64Key);
+            // const UploadedSecretKey = seal.SecretKey();
+            // UploadedSecretKey.load(context, secretBase64Key);
 
             // NOTE
             //
@@ -112,17 +118,17 @@ export default defineComponent({
 
             // // Create a new KeyGenerator (use both uploaded keys)
             // const keyGenerator = seal.KeyGenerator(context, UploadedSecretKey, UploadedPublicKey)
+
             return {
-                publicKey,
-                secretKey,
+                publicKey: this.publicKey.save(),
+                privateKey: this.privateKey.save(),
             };
-        },
-        encryptData(
-            seal: SEALLibrary,
-            context: Context,
-            publicKey: PublicKey,
-            data: number[]
-        ): CipherText {
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+    encryptData(data: number[]): CipherText {
+        if (this.seal && this.context && this.publicKey) {
             ////////////////////////
             // Instances
             ////////////////////////
@@ -131,13 +137,13 @@ export default defineComponent({
             // const evaluator = seal.Evaluator(context);
 
             // Create a BatchEncoder (only BFV SchemeType)
-            const encoder = seal.BatchEncoder(context);
+            const encoder = this.seal.BatchEncoder(this.context);
 
             // Or a CKKSEncoder (only CKKS SchemeType)
             // const encoder = seal.CKKSEncoder(context)
 
             // Create an Encryptor to encrypt PlainTexts
-            const encryptor = seal.Encryptor(context, publicKey);
+            const encryptor = this.seal.Encryptor(this.context, this.publicKey);
 
             // Create a Decryptor to decrypt CipherTexts
 
@@ -183,17 +189,16 @@ export default defineComponent({
             } else {
                 throw new Error('Plaintext could not be created.');
             }
-        },
-        decryptData(
-            seal: SEALLibrary,
-            context: Context,
-            secretKey: SecretKey,
-            encryptedData: CipherText
-        ): Int32Array | Uint32Array {
-            const decryptor = seal.Decryptor(context, secretKey);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+    decryptData(encryptedData: CipherText): Int32Array | Uint32Array {
+        if (this.seal && this.context && this.privateKey) {
+            const decryptor = this.seal.Decryptor(this.context, this.privateKey);
 
             // Create a BatchEncoder (only BFV SchemeType)
-            const encoder = seal.BatchEncoder(context);
+            const encoder = this.seal.BatchEncoder(this.context);
 
             // Decrypt a CipherText
             const plainTextD = decryptor.decrypt(encryptedData);
@@ -209,48 +214,18 @@ export default defineComponent({
             } else {
                 throw new Error('Could not decrypt ciphertext.');
             }
-        },
-        uploadedFile(files: FileList) {
-            Papa.parse(files[0], {
-                worker: true,
-                header: false,
-                complete: async (result) => {
-                    const chunks: number[][][] = chunkArray(
-                        result.data,
-                        CHUNK_SIZE
-                    ) as number[][][];
-                    console.log('Chunks', chunks);
-                    const firstChunk = chunks[0];
-                    // TODO: find elegant way to handle this.
-                    const valueColumn = firstChunk.map((val) => val[5]);
-                    valueColumn.shift();
-                    const { seal, context } = await this.initFHEContext();
-                    const { publicKey, secretKey } = this.generateKeys(seal, context);
-                    const serializedSecretKey = secretKey.save();
-                    console.log(serializedSecretKey);
-                    const encryptedValues = this.encryptData(seal, context, publicKey, valueColumn);
-                    const decryptedValues = this.decryptData(
-                        seal,
-                        context,
-                        secretKey,
-                        encryptedValues
-                    );
-                    console.log(decryptedValues);
-                },
-            });
-        },
-        async testWebsocket() {
-            // console.log('test');
-            // const apiKeyResponse = await createAPIKey();
-            // console.log(apiKeyResponse);
-            // const ws = new WebSocket(process.env.BACKEND_WSS_URL, apiKeyResponse.data);
-            // ws.onopen = function open() {
-            //     console.log('connected');
-            // };
-            // ws.onclose = function close() {
-            //     console.log('closed');
-            // };
-        },
-    },
-});
-</script>
+        } else {
+            throw new Error('FHE Module has not been initialized');
+        }
+    }
+
+    public static getInstance(): FHEModule {
+        if (!this.instance) {
+            this.instance = new FHEModule();
+        }
+
+        return this.instance;
+    }
+}
+
+export default FHEModule.getInstance();

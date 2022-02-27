@@ -2,5 +2,5 @@ import { Header } from '.';
 
 export interface Dataset {
     headers: Header[];
-    data: unknown[];
+    data: Array<Array<unknown>>;
 }

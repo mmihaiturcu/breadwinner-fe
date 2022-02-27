@@ -97,11 +97,21 @@ export default defineComponent({
                 },
             };
         },
+        dataProcessingTestNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-database-cog',
+                label: this.t('navigation.dataProcessingTest'),
+                routeName: 'dataProcessingTest',
+                clickHandler: async () => {
+                    await this.$router.replace({ path: '/main/data-processing-test' });
+                },
+            };
+        },
         dataSupplierNavigationItems(): NavigationItem[] {
             return [this.payloadsNavigationItem];
         },
         dataProcessorNavigationItems(): NavigationItem[] {
-            return [this.apiKeysNavigationItem];
+            return [this.apiKeysNavigationItem, this.dataProcessingTestNavigationItem];
         },
         adminNavigationItems(): NavigationItem[] {
             return [];

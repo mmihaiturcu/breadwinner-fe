@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { api } from 'src/boot/axios';
-import { APIKey, Payload, User } from 'src/types/models';
+import { APIKey, Payload, PayloadDTO, User } from 'src/types/models';
 import {
     CheckConfirmationLinkValidRequest,
     CreateApiKeyRequest,
@@ -47,4 +47,8 @@ export async function deleteAPIKey(id: APIKey['id']): Promise<AxiosResponse<void
 
 export async function getPayloadsForUser(userId: User['id']): Promise<AxiosResponse<Payload[]>> {
     return api.get(`user/${userId}/payloads`);
+}
+
+export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<void>> {
+    return api.post('payload/createPayload', payload);
 }

@@ -1,13 +1,11 @@
 import { defineStore } from 'pinia';
 import { Role } from 'src/types/enums';
-import { User } from 'src/types/models';
 import { UserCreateRequest, UserLoginRequest } from 'src/types/requests';
 import { UserLoginResponse } from 'src/types/responses';
 
 const storeID = 'user';
 
 interface UserStoreState {
-    user: User;
     isLoggedIn: boolean;
     currentActiveAuthenticationComponent: 'LoginForm' | 'RegisterForm';
     loginPayload: UserLoginRequest;
@@ -16,11 +14,6 @@ interface UserStoreState {
 }
 
 const UserStoreState: UserStoreState = {
-    user: {
-        id: 0,
-        email: '',
-        role: Role.DATA_SUPPLIER,
-    },
     isLoggedIn: false,
     currentActiveAuthenticationComponent: 'LoginForm',
     loginPayload: {

@@ -1,19 +1,39 @@
+import { Operations } from 'src/types/enums';
+
 export const CHUNK_SIZE = 1000;
 
 export const OPERATIONS = [
-    { name: 'add', label: 'Add', icon: 'mdi-plus', minOperands: 1, maxOperands: 2 },
-    { name: 'subtract', label: 'Subtract', icon: 'mdi-minus', minOperands: 2, maxOperands: 2 },
+    { name: Operations.ADD, label: 'Add', icon: 'mdi-plus', minOperands: 1, maxOperands: 2 },
     {
-        name: 'multiply',
+        name: Operations.SUBTRACT,
+        label: 'Subtract',
+        icon: 'mdi-minus',
+        minOperands: 2,
+        maxOperands: 2,
+    },
+    {
+        name: Operations.MULTIPLY,
         label: 'Multiply',
         icon: 'mdi-multiplication',
         minOperands: 2,
         maxOperands: 2,
     },
-    { name: 'square', label: 'Square', icon: 'mdi-multiplication', minOperands: 1, maxOperands: 1 },
-    { name: 'divide', label: 'Divide', icon: 'mdi-division', minOperands: 2, maxOperands: 2 },
     {
-        name: 'squareRoot',
+        name: Operations.SQUARE,
+        label: 'Square',
+        icon: 'mdi-multiplication',
+        minOperands: 1,
+        maxOperands: 1,
+    },
+    {
+        name: Operations.DIVIDE,
+        label: 'Divide',
+        icon: 'mdi-division',
+        minOperands: 2,
+        maxOperands: 2,
+    },
+    {
+        name: Operations.SQUARE_ROOT,
         label: 'Square root',
         icon: 'mdi-square-root',
         minOperands: 1,
