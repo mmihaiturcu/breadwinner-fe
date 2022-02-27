@@ -83,6 +83,7 @@ module.exports = {
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/unbound-method': 'off',
+        '@typescript-eslint/no-non-null-assertion': 'off',
 
         // allow debugger during development only
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',

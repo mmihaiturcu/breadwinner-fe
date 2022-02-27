@@ -1,3 +1,16 @@
 export { User } from './User';
 export { NavigationItem } from './NavigationItem';
 export { APIKey } from './APIKey';
+export { Payload } from './Payload';
+export { Dataset } from './Dataset';
+export { PayloadTab } from './PayloadTab';
+export { Header } from './Header';
+export { DefinedOperation } from './DefinedOperation';
+export { Operation } from './Operation';
+export { Operand } from './Operand';
+export { JSONSchema } from './JSONSchema';
+export { PayloadDTO } from './PayloadDTO';
+export { OperationDTO } from './OperationDTO';
+export { Chunk } from './Chunk';
+export { PayloadToProcess } from './PayloadToProcess';
+export { ChunkToProcess } from './ChunkToProcess';

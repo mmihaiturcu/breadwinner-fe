@@ -60,6 +60,7 @@ import Logo from 'src/components/Logo.vue';
 
 export default defineComponent({
     name: 'MainLayout',
+    components: { Logo },
     setup() {
         const leftDrawerOpen = ref(false);
         const { t } = useGlobalI18n();
@@ -86,11 +87,31 @@ export default defineComponent({
                 },
             };
         },
+        payloadsNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-database-lock',
+                label: this.t('navigation.payloads'),
+                routeName: 'payloads',
+                clickHandler: async () => {
+                    await this.$router.replace({ path: '/main/payloads' });
+                },
+            };
+        },
+        dataProcessingTestNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-database-cog',
+                label: this.t('navigation.dataProcessingTest'),
+                routeName: 'dataProcessingTest',
+                clickHandler: async () => {
+                    await this.$router.replace({ path: '/main/data-processing-test' });
+                },
+            };
+        },
         dataSupplierNavigationItems(): NavigationItem[] {
-            return [];
+            return [this.payloadsNavigationItem];
         },
         dataProcessorNavigationItems(): NavigationItem[] {
-            return [this.apiKeysNavigationItem];
+            return [this.apiKeysNavigationItem, this.dataProcessingTestNavigationItem];
         },
         adminNavigationItems(): NavigationItem[] {
             return [];
@@ -111,10 +132,6 @@ export default defineComponent({
             }
         },
     },
-    navigationMenuItems() {
-        return [];
-    },
-    components: { Logo },
 });
 </script>
 

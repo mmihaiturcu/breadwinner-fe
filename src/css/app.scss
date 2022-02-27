@@ -12,10 +12,6 @@ body {
     overflow: hidden;
 }
 
-body {
-    background-color: #13001c;
-}
-
 .spark {
     background-color: #0acf7a;
     font-family: 'Helvetica', sans-serif;
@@ -38,9 +34,19 @@ input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px white inset !important;
 }
 
-.accent-hover {
+.hover-accent,
+.hover-primary {
     transition: color $hover-transition;
+}
+
+.hover-accent {
     &:hover {
         color: $accent;
+    }
+}
+
+.hover-primary {
+    &:hover {
+        color: $primary;
     }
 }
