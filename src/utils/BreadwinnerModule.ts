@@ -1,6 +1,7 @@
 import { Notify } from 'quasar';
 import { Operations, WebsocketEventTypes } from 'src/types/enums';
 import { ChunkToProcess, JSONSchema, PayloadToProcess } from 'src/types/models';
+import { REWARD_TIMEOUT_MS } from './constants';
 import FHEModule from './FHEModule';
 import OperationsCalculator from './OperationsCalculator';
 
@@ -18,9 +19,7 @@ class BreadwinnerModule {
     }
 
     private requestPayload() {
-        this.websocketConnection?.send(
-            JSON.stringify({ eventType: WebsocketEventTypes.REQUEST_CHUNK })
-        );
+        this.websocketConnection?.send(JSON.stringify({ type: WebsocketEventTypes.REQUEST_CHUNK }));
     }
 
     private onWebsocketOpen(event: Event) {
@@ -93,10 +92,15 @@ class BreadwinnerModule {
 
             const result = this.processChunk(chunkToProcess, payload.jsonSchema);
 
+            console.log('processing result', result);
+
             this.websocketConnection?.send(
                 JSON.stringify({
-                    eventType: WebsocketEventTypes.SEND_CHUNK_PROCESSING_RESULT,
-                    data: result,
+                    type: WebsocketEventTypes.SEND_CHUNK_PROCESSING_RESULT,
+                    data: {
+                        chunkId: chunkToProcess.id,
+                        result,
+                    },
                 })
             );
         } else {
@@ -106,7 +110,7 @@ class BreadwinnerModule {
             });
         }
 
-        setTimeout(() => this.requestPayload(), 60000);
+        setTimeout(() => this.requestPayload(), REWARD_TIMEOUT_MS);
     }
 
     private initializeWebsocketConnection() {

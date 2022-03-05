@@ -17,3 +17,5 @@ export { ChunkToProcess } from './ChunkToProcess';
 export { Operand } from './Operand';
 export { CalculatorOperand } from './CalculatorOperand';
 export { ResultType } from './ResultType';
+export { KeyPair } from './KeyPair';
+export { DecryptPayloadDTO } from './DecryptPayloadDTO';

@@ -52,7 +52,26 @@
                                 size="20px"
                                 :value="props.row.progress"
                                 :color="props.row.progress === 1 ? 'primary' : 'accent'"
-                            />
+                            >
+                                <div class="absolute-full flex flex-center">
+                                    <q-badge
+                                        :color="props.row.progress === 1 ? 'accent' : 'primary'"
+                                        text-color="white"
+                                        :label="`Progress: ${props.row.progress * 100}%`"
+                                    />
+                                </div>
+                            </q-linear-progress>
+                        </q-card-section>
+                        <q-separator />
+                        <q-card-section v-if="props.row.progress === 1">
+                            <q-card-actions align="center">
+                                <q-btn
+                                    color="primary"
+                                    icon="mdi-lock-open"
+                                    label="Decrypt result"
+                                    @click="openDecryptPayloadModal(props.row.id)"
+                                />
+                            </q-card-actions>
                         </q-card-section>
                     </q-card>
                 </div>
@@ -60,6 +79,7 @@
         </q-table>
         <CreatePayloadModal v-if="showCreatePayloadModal" />
         <ShowKeyPairModal v-if="showKeyPairModal" />
+        <ShowDecryptPayloadModal v-if="showDecryptPayloadModal" />
         <q-page-sticky position="bottom-right" :offset="[18, 18]">
             <q-btn fab icon="add" color="accent" @click="openAddPayloadModal" />
         </q-page-sticky>
@@ -73,13 +93,15 @@ import { defineComponent, ref } from 'vue';
 import CreatePayloadModal from 'src/components/dashboard/payload/CreatePayloadModal.vue';
 import ShowKeyPairModal from 'src/components/dashboard/payload/ShowKeyPairModal.vue';
 import Logo from 'src/components/Logo.vue';
+import ShowDecryptPayloadModal from 'src/components/dashboard/payload/ShowDecryptPayloadModal.vue';
 
 export default defineComponent({
     name: 'PagePayloads',
-    components: { CreatePayloadModal, ShowKeyPairModal, Logo },
+    components: { CreatePayloadModal, ShowKeyPairModal, Logo, ShowDecryptPayloadModal },
     setup() {
         const payloadStore = usePayloadStore();
-        const { payloads, showCreatePayloadModal, showKeyPairModal } = storeToRefs(payloadStore);
+        const { payloads, showCreatePayloadModal, showKeyPairModal, showDecryptPayloadModal } =
+            storeToRefs(payloadStore);
         return {
             payloads,
             columns: [
@@ -94,12 +116,19 @@ export default defineComponent({
             searchValue: ref(''),
             showCreatePayloadModal,
             showKeyPairModal,
+            showDecryptPayloadModal,
             payloadStore,
         };
     },
     methods: {
         openAddPayloadModal() {
             this.showCreatePayloadModal = true;
+        },
+        openDecryptPayloadModal(payloadId: number) {
+            this.payloadStore.$patch({
+                showDecryptPayloadModal: true,
+                payloadToDecryptId: payloadId,
+            });
         },
     },
     async created() {

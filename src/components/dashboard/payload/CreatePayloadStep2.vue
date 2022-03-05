@@ -119,8 +119,15 @@
                 </q-splitter>
             </q-tab-panel>
         </q-tab-panels>
-        <q-stepper-navigation align="center">
+        <q-stepper-navigation class="row flex-center navigation">
             <q-btn
+                flat
+                label="Back"
+                icon="mdi-arrow-left-bold"
+                @click="currentPayloadCreationStep -= 1"
+            />
+            <q-btn
+                :disable="currentPayloadTab.state.operations.length === 0"
                 color="primary"
                 label="Next"
                 icon="mdi-arrow-right-bold"
@@ -220,5 +227,9 @@ export default defineComponent({
 
 .operations-container {
     max-height: 100%;
+}
+
+.navigation {
+    gap: 16px;
 }
 </style>

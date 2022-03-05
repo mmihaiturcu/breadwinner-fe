@@ -68,7 +68,6 @@ export default defineComponent({
             showAddOperationModal,
         };
     },
-    methods: {},
 });
 </script>
 
