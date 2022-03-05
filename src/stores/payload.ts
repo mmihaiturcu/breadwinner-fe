@@ -84,17 +84,23 @@ export const usePayloadStore = defineStore({
                     userId: userStore.userDetails.id,
                     chunks: chunks.map((chunk) => ({
                         length: chunk.length,
-                        cipherText: FHEModule.encryptData(chunk).saveArray(),
+                        cipherText: FHEModule.encryptData(chunk).save(),
                     })),
                     jsonSchema: {
                         totalDataLength: this.uploadedDataset.data.length,
                         operations: payloadTab.state.operations.map((operation) => ({
                             name: operation.operationObject.name,
-                            operands: operation.operands.map((operand) => operand.value),
+                            operands: operation.operands.map((operand) => ({
+                                field: operand.value as string,
+                                type: operand.type,
+                            })),
+                            resultType: operation.resultType,
                         })),
                     },
+                    publicKey: this.keyPair.publicKey,
                 };
             });
+            console.log(payloads);
 
             for (const payload of payloads) {
                 await createPayload(payload);

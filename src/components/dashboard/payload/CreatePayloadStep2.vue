@@ -42,7 +42,7 @@
                             color="accent"
                             virtual-scroll
                             :pagination="pagination"
-                            :rows-per-page-options="[0]"
+                            :rows-per-page-options="[100, 1000]"
                             selection="multiple"
                             v-model:selected="payloadTab.state.selectedRows"
                         >

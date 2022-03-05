@@ -4,6 +4,7 @@
             color="primary"
             label="Submit"
             icon="mdi-arrow-right-bold"
+            :loading="loading"
             @click="preparePayloads"
         />
     </q-stepper-navigation>
@@ -11,7 +12,7 @@
 
 <script lang="ts">
 import { usePayloadStore } from 'src/stores';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     name: 'CreatePayloadStep3',
@@ -20,11 +21,13 @@ export default defineComponent({
 
         return {
             payloadStore,
+            loading: ref(false),
         };
     },
     methods: {
         async preparePayloads() {
-            await this.payloadStore.processPayloads();
+            this.loading = true;
+            await this.payloadStore.processPayloads().finally(() => (this.loading = false));
         },
     },
 });

@@ -80,7 +80,6 @@ export class FHEModule {
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
 
-            // TODO: show this to user
             // Saving a key to a string is the same for each type of key
             // const secretBase64Key = secretKey.save();
             // const publicBase64Key = publicKey.save();
@@ -123,6 +122,14 @@ export class FHEModule {
                 publicKey: this.publicKey.save(),
                 privateKey: this.privateKey.save(),
             };
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+    setPublicKey(publicKey: string) {
+        if (this.seal && this.context) {
+            const PublicKey = this.seal.PublicKey();
+            PublicKey.load(this.context, publicKey);
         } else {
             throw new Error('FHE Module has not been initialized.');
         }

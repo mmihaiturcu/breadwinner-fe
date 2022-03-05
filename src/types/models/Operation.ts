@@ -1,4 +1,5 @@
 import { Operations } from '../enums';
+import { ResultType } from './ResultType';
 
 export interface Operation {
     name: Operations;
@@ -6,4 +7,5 @@ export interface Operation {
     icon: string;
     minOperands: number;
     maxOperands: number;
+    resultTypes: ResultType;
 }

@@ -1,15 +1,42 @@
-import { Operations } from 'src/types/enums';
+import { OperandTypes, Operations, Role } from 'src/types/enums';
 
 export const CHUNK_SIZE = 1000;
 
 export const OPERATIONS = [
-    { name: Operations.ADD, label: 'Add', icon: 'mdi-plus', minOperands: 1, maxOperands: 2 },
+    {
+        name: Operations.ADD,
+        label: 'Add',
+        icon: 'mdi-plus',
+        minOperands: 1,
+        maxOperands: 2,
+        resultTypes: {
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+                [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+                [OperandTypes.NONE]: null,
+            },
+            [OperandTypes.ARRAY]: {
+                [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+                [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+                [OperandTypes.NONE]: OperandTypes.NUMBER,
+            },
+        },
+    },
     {
         name: Operations.SUBTRACT,
         label: 'Subtract',
         icon: 'mdi-minus',
         minOperands: 2,
         maxOperands: 2,
+        resultTypes: {
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+            },
+            [OperandTypes.ARRAY]: {
+                [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+                [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+            },
+        },
     },
     {
         name: Operations.MULTIPLY,
@@ -24,6 +51,10 @@ export const OPERATIONS = [
         icon: 'mdi-multiplication',
         minOperands: 1,
         maxOperands: 1,
+        resultTypes: {
+            [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+            [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+        },
     },
     {
         name: Operations.DIVIDE,
@@ -31,6 +62,14 @@ export const OPERATIONS = [
         icon: 'mdi-division',
         minOperands: 2,
         maxOperands: 2,
+        resultTypes: {
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+            },
+            [OperandTypes.ARRAY]: {
+                [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+            },
+        },
     },
     {
         name: Operations.SQUARE_ROOT,
@@ -38,6 +77,11 @@ export const OPERATIONS = [
         icon: 'mdi-square-root',
         minOperands: 1,
         maxOperands: 1,
+        resultTypes: {
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+            },
+        },
     },
 ];
 
@@ -77,4 +121,10 @@ export const COMPLEX_OPERATION_PRESETS = {
             },
         ],
     },
+};
+
+export const DEFAULT_ROUTES = {
+    [Role.ADMIN]: '/main/dashboard',
+    [Role.DATA_PROCESSOR]: '/main/api-keys',
+    [Role.DATA_SUPPLIER]: '/main/payloads',
 };
