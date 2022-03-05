@@ -5,6 +5,7 @@ import { Context } from 'node-seal/implementation/context';
 import { PublicKey } from 'node-seal/implementation/public-key';
 import { SecretKey } from 'node-seal/implementation/secret-key';
 import { CipherText } from 'node-seal/implementation/cipher-text';
+import { KeyPair } from 'src/types/models';
 
 export class FHEModule {
     public static instance: FHEModule;
@@ -27,7 +28,7 @@ export class FHEModule {
         const securityLevel = seal.SecurityLevel.tc128;
         const polyModulusDegree = 4096;
         const bitSizes = [36, 36, 37];
-        const bitSize = 20;
+        const bitSize = 40; // Controls the max number that we can work with / encrypt.
 
         const encParms = seal.EncryptionParameters(schemeType);
 
@@ -80,7 +81,6 @@ export class FHEModule {
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
 
-            // TODO: show this to user
             // Saving a key to a string is the same for each type of key
             // const secretBase64Key = secretKey.save();
             // const publicBase64Key = publicKey.save();
@@ -127,6 +127,14 @@ export class FHEModule {
             throw new Error('FHE Module has not been initialized.');
         }
     }
+    setPublicKey(publicKey: string) {
+        if (this.seal && this.context) {
+            this.publicKey = this.seal.PublicKey();
+            this.publicKey.load(this.context, publicKey);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
     encryptData(data: number[]): CipherText {
         if (this.seal && this.context && this.publicKey) {
             ////////////////////////
@@ -134,7 +142,7 @@ export class FHEModule {
             ////////////////////////
 
             // Create an Evaluator which will allow HE functions to execute
-            // const evaluator = seal.Evaluator(context);
+            const evaluator = this.seal.Evaluator(this.context);
 
             // Create a BatchEncoder (only BFV SchemeType)
             const encoder = this.seal.BatchEncoder(this.context);
@@ -176,16 +184,15 @@ export class FHEModule {
                 const cipherTextA = encryptor.encrypt(plainTextA);
 
                 if (cipherTextA) {
+                    const cipherTextD = this.seal.CipherText();
+
+                    if (cipherTextA && cipherTextD) {
+                        evaluator.add(cipherTextA, cipherTextA, cipherTextD);
+                    }
                     return cipherTextA;
                 } else {
                     throw new Error('Ciphertext could not be created.');
                 }
-                // // Add CipherText B to CipherText A and store the sum in a destination CipherText
-                // const cipherTextD = seal.CipherText();
-
-                // if (cipherTextA && cipherTextD) {
-                //     evaluator.add(cipherTextA, cipherTextA, cipherTextD);
-                // }
             } else {
                 throw new Error('Plaintext could not be created.');
             }
@@ -216,6 +223,17 @@ export class FHEModule {
             }
         } else {
             throw new Error('FHE Module has not been initialized');
+        }
+    }
+
+    setKeyPair(keyPair: KeyPair) {
+        if (this.seal && this.context) {
+            this.publicKey = this.seal.PublicKey();
+            this.publicKey.load(this.context, keyPair.publicKey);
+            this.privateKey = this.seal.SecretKey();
+            this.privateKey.load(this.context, keyPair.privateKey);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
         }
     }
 

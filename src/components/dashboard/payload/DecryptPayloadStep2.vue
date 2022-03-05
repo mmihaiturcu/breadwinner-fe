@@ -1,0 +1,101 @@
+<template>
+    <q-form class="column items-center" @submit="decryptPayload">
+        <q-btn type="submit" color="primary" icon="mdi-lock-open-check" label="Decrypt payload" />
+    </q-form>
+</template>
+
+<script lang="ts">
+import saveAs from 'file-saver';
+import { storeToRefs } from 'pinia';
+import { getPayloadDecryptInfo, getProcessedChunkOutput } from 'src/service/service';
+import { usePayloadStore } from 'src/stores';
+import { OperandTypes } from 'src/types/enums';
+import FHEModule from 'src/utils/FHEModule';
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+    name: 'CreatePayloadStep1',
+    setup() {
+        const payloadStore = usePayloadStore();
+        const { uploadedKeyPairFile, keyPair, payloadToDecryptId } = storeToRefs(payloadStore);
+
+        return {
+            uploadedKeyPairFile,
+            keyPair,
+            payloadToDecryptId,
+            payloadStore,
+        };
+    },
+    methods: {
+        downloadDecryptedData(data: Array<unknown> | number) {
+            // TODO: insert the payload name in the file name somewhere
+            const file = new File(
+                [JSON.stringify({ result: data })],
+                `payload_${this.payloadToDecryptId}_result.json`,
+                {
+                    type: 'application/json',
+                }
+            );
+            saveAs(file);
+        },
+        async decryptPayload() {
+            if (this.uploadedKeyPairFile) {
+                // Fetch some info about payload in order to complete the processing
+                const response = await getPayloadDecryptInfo(this.payloadToDecryptId);
+                const payloadDecryptInfo = response.data;
+                // In the case of an array type end result, we should only concatenate the resulting arrays from each chunk that was processed.
+                // In the case of a number type result, we must sum all the numbers and divide by the number of chunks.
+
+                this.keyPair = JSON.parse(await this.uploadedKeyPairFile.text());
+                await FHEModule.initFHEContext();
+                FHEModule.setKeyPair(this.keyPair);
+
+                let plainTextResult = null as null | number | Array<number>;
+
+                switch (payloadDecryptInfo.endResultType) {
+                    case OperandTypes.ARRAY: {
+                        plainTextResult = [];
+
+                        for (const chunk of payloadDecryptInfo.chunks) {
+                            const response = await getProcessedChunkOutput(chunk.id);
+                            const cipherTextArray = FHEModule.seal!.CipherText();
+                            cipherTextArray.load(FHEModule.context!, response.data);
+                            console.log(cipherTextArray.size);
+                            const decryptedArray = FHEModule.decryptData(cipherTextArray).slice(
+                                0,
+                                chunk.length
+                            );
+                            console.log('decrypted partial array', decryptedArray);
+                            plainTextResult.push(...decryptedArray);
+                        }
+
+                        console.log('full array is ', plainTextResult);
+                    }
+                }
+
+                if (plainTextResult) {
+                    this.$q.notify({
+                        type: 'positive',
+                        message:
+                            'Your processing result has been successfully decrypted. Thank you for using Breadwinner!',
+                    });
+                    this.downloadDecryptedData(plainTextResult);
+                } else {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: 'An error has occurred during the decryption process.',
+                    });
+                }
+
+                this.payloadStore.$patch({
+                    showDecryptPayloadModal: false,
+                    currentPayloadDecryptionStep: 1,
+                    uploadedKeyPairFile: null,
+                });
+
+                // TODO: Perform cleanup in the FHEModule (clean up private keys, public keys)
+            }
+        },
+    },
+});
+</script>

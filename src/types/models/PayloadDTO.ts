@@ -4,4 +4,5 @@ export interface PayloadDTO {
     userId: User['id'];
     chunks: Chunk[];
     jsonSchema: JSONSchema;
+    publicKey: string;
 }

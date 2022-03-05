@@ -79,6 +79,7 @@
                     :disable="!canAddOperation"
                     @click="addOperation"
                 />
+                <q-btn flat v-close-popup label="Cancel" />
             </q-card-actions>
         </q-card>
     </q-dialog>
@@ -89,8 +90,8 @@ import { storeToRefs } from 'pinia';
 import { usePayloadStore } from 'src/stores';
 import { defineComponent, ref } from 'vue';
 import { OPERATIONS } from 'src/utils/constants';
-import { QSelectProps } from 'quasar';
-import { Operation } from 'src/types/models';
+import { OperandOption, Operation, ResultType } from 'src/types/models';
+import { OperandTypes } from 'src/types/enums';
 
 export default defineComponent({
     name: 'AddOperationModal',
@@ -104,30 +105,35 @@ export default defineComponent({
             OPERATIONS,
             operation: ref({
                 operationObject: null as null | Operation,
-                operands: [null],
+                operands: [null] as (null | OperandOption)[],
+                resultType: null as null | OperandTypes,
             }),
             currentPayloadTab,
         };
     },
     computed: {
-        availableOperands(): QSelectProps['options'] {
+        availableOperands(): OperandOption[] {
             return [
                 {
                     label: this.currentPayloadTab.state.selectedHeader!.label,
                     value: 'data',
                     icon: 'mdi-numeric',
+                    type: OperandTypes.ARRAY,
                 },
                 ...this.currentPayloadTab.state.operations.map((operation, index) => ({
                     label: `Operation ${index + 1} result`,
                     value: index,
                     icon: 'mdi-numeric',
+                    type: operation.resultType,
                 })),
             ];
         },
         canAddOperation(): boolean {
             return (
                 this.operation.operationObject != null &&
-                this.operation.operands.every((operand) => operand != null)
+                this.operation.operands.every((operand) => operand !== null) &&
+                this.parsedOperationResultType !== null
+                // this.operation.operands.every((operand: null | OperandOption) => operand != null)
             );
         },
         canRemoveOperands(): boolean {
@@ -136,6 +142,27 @@ export default defineComponent({
                       this.operation.operationObject.minOperands !==
                           this.operation.operationObject.maxOperands
                 : false;
+        },
+        parsedOperationResultType(): OperandTypes | null {
+            // Extract the type of each operand.
+            const operandTypes = this.operation.operands.map((operand) => operand!.type);
+
+            // Prepare to walk the "operation result type" tree, in order to find out the operation's result type.
+            let operationResultType = this.operation.operationObject!.resultTypes as
+                | OperandTypes
+                | ResultType
+                | null;
+
+            for (const operandType of operandTypes) {
+                operationResultType = (operationResultType as ResultType)[operandType];
+            }
+
+            // Special case that checks if the "operation result type" tree was not parsed completely (this happens when the number of operands is < maxOperands)
+            if (operationResultType && typeof operationResultType === 'object') {
+                operationResultType = operationResultType[OperandTypes.NONE];
+            }
+            console.log('Parsed result', operationResultType);
+            return operationResultType as OperandTypes | null;
         },
     },
     methods: {
@@ -150,9 +177,13 @@ export default defineComponent({
             this.operation.operands.splice(index, 1);
         },
         addOperation() {
+            // After the tree walk, operationResultType holds the type of the operation's result.
+            this.operation.resultType = this.parsedOperationResultType;
+
             this.currentPayloadTab.state.operations.push(
                 JSON.parse(JSON.stringify(this.operation))
             );
+            console.log('Added new operation', JSON.parse(JSON.stringify(this.operation)));
             this.showAddOperationModal = false;
         },
     },

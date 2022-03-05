@@ -59,6 +59,7 @@ import { loginUser } from 'src/service/service';
 import { useUserStore } from 'src/stores/user';
 import { useEmailValidation, useGlobalI18n } from 'src/utils/hooks';
 import { defineComponent, ref } from 'vue';
+import { DEFAULT_ROUTES } from 'src/utils/constants';
 
 export default defineComponent({
     name: 'LoginForm',
@@ -85,7 +86,7 @@ export default defineComponent({
                         userDetails: response.data,
                         isLoggedIn: true,
                     });
-                    await this.$router.replace({ path: '/main/dashboard' });
+                    await this.$router.replace({ path: DEFAULT_ROUTES[this.userDetails.role] });
                 })
                 .catch((error: AxiosError) => {
                     if (error.response) {

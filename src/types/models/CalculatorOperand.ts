@@ -1,6 +1,6 @@
 import { OperandTypes } from '../enums';
 
-export interface Operand {
+export interface CalculatorOperand {
     type: OperandTypes;
-    field: string;
+    data: string;
 }

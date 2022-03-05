@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { api } from 'src/boot/axios';
-import { APIKey, Payload, PayloadDTO, User } from 'src/types/models';
+import { APIKey, DecryptPayloadDTO, Payload, PayloadDTO, User } from 'src/types/models';
 import {
     CheckConfirmationLinkValidRequest,
     CreateApiKeyRequest,
@@ -51,4 +51,14 @@ export async function getPayloadsForUser(userId: User['id']): Promise<AxiosRespo
 
 export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<void>> {
     return api.post('payload/createPayload', payload);
+}
+
+export async function getPayloadDecryptInfo(
+    id: Payload['id']
+): Promise<AxiosResponse<DecryptPayloadDTO>> {
+    return api.get(`payload/${id}/decryptInfo`);
+}
+
+export async function getProcessedChunkOutput(id: number): Promise<AxiosResponse<string>> {
+    return api.get(`chunk/${id}/output`);
 }

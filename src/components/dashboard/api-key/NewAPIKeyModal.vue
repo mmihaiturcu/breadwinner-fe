@@ -1,5 +1,5 @@
 <template>
-    <q-dialog v-model="showReceiveAPIKeyModal">
+    <q-dialog v-model="showReceiveAPIKeyModal" persistent>
         <q-card class="receive-api-key-modal-card-container">
             <q-card-section>
                 <div class="text-h6">{{ t('apiKeys.createdTitle') }}</div>

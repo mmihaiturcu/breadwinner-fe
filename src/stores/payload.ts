@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { createPayload, getPayloadsForUser } from 'src/service/service';
-import { Dataset, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
+import { Dataset, KeyPair, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
 import { CHUNK_SIZE } from 'src/utils/constants';
 import FHEModule from 'src/utils/FHEModule';
 import { chunkArray } from 'src/utils/helper';
@@ -18,11 +18,12 @@ interface PayloadStoreState {
     payloadTabs: PayloadTab[];
     currentPayloadTabName: string;
     showAddOperationModal: boolean;
-    keyPair: {
-        publicKey: string;
-        privateKey: string;
-    };
+    keyPair: KeyPair;
     showKeyPairModal: boolean;
+    showDecryptPayloadModal: boolean;
+    payloadToDecryptId: Payload['id'];
+    currentPayloadDecryptionStep: number;
+    uploadedKeyPairFile: null | File;
 }
 
 const PayloadStoreState: PayloadStoreState = {
@@ -42,6 +43,10 @@ const PayloadStoreState: PayloadStoreState = {
         privateKey: '',
     },
     showKeyPairModal: false,
+    showDecryptPayloadModal: false,
+    payloadToDecryptId: -1,
+    currentPayloadDecryptionStep: 1,
+    uploadedKeyPairFile: null,
 };
 
 export { PayloadStoreState };
@@ -84,17 +89,23 @@ export const usePayloadStore = defineStore({
                     userId: userStore.userDetails.id,
                     chunks: chunks.map((chunk) => ({
                         length: chunk.length,
-                        cipherText: FHEModule.encryptData(chunk).saveArray(),
+                        cipherText: FHEModule.encryptData(chunk).save(),
                     })),
                     jsonSchema: {
                         totalDataLength: this.uploadedDataset.data.length,
                         operations: payloadTab.state.operations.map((operation) => ({
                             name: operation.operationObject.name,
-                            operands: operation.operands.map((operand) => operand.value),
+                            operands: operation.operands.map((operand) => ({
+                                field: operand.value as string,
+                                type: operand.type,
+                            })),
+                            resultType: operation.resultType,
                         })),
                     },
+                    publicKey: this.keyPair.publicKey,
                 };
             });
+            console.log(payloads);
 
             for (const payload of payloads) {
                 await createPayload(payload);
