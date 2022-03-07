@@ -25,11 +25,15 @@ export async function finishAccount(payload: UserFinishRequest): Promise<AxiosRe
 export async function loginUser(
     payload: UserLoginRequest
 ): Promise<AxiosResponse<UserLoginResponse>> {
-    return api.post('user/login', payload);
+    return api.post('user/login', payload, {
+        withCredentials: true,
+    });
 }
 
 export async function getApiKeysForUser(userId: User['id']): Promise<AxiosResponse<APIKey[]>> {
-    return api.get(`user/${userId}/apiKeys`);
+    return api.get(`user/${userId}/apiKeys`, {
+        withCredentials: true,
+    });
 }
 
 /**
@@ -38,27 +42,39 @@ export async function getApiKeysForUser(userId: User['id']): Promise<AxiosRespon
  * @returns the full API Key (it is NOT stored on BE, user should copy it)
  */
 export async function createAPIKey(payload: CreateApiKeyRequest): Promise<AxiosResponse<string>> {
-    return api.post('apiKey/create', payload);
+    return api.post('apiKey/create', payload, {
+        withCredentials: true,
+    });
 }
 
 export async function deleteAPIKey(id: APIKey['id']): Promise<AxiosResponse<void>> {
-    return api.delete(`apiKey/${id}`);
+    return api.delete(`apiKey/${id}`, {
+        withCredentials: true,
+    });
 }
 
 export async function getPayloadsForUser(userId: User['id']): Promise<AxiosResponse<Payload[]>> {
-    return api.get(`user/${userId}/payloads`);
+    return api.get(`user/${userId}/payloads`, {
+        withCredentials: true,
+    });
 }
 
 export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<void>> {
-    return api.post('payload/createPayload', payload);
+    return api.post('payload/createPayload', payload, {
+        withCredentials: true,
+    });
 }
 
 export async function getPayloadDecryptInfo(
     id: Payload['id']
 ): Promise<AxiosResponse<DecryptPayloadDTO>> {
-    return api.get(`payload/${id}/decryptInfo`);
+    return api.get(`payload/${id}/decryptInfo`, {
+        withCredentials: true,
+    });
 }
 
 export async function getProcessedChunkOutput(id: number): Promise<AxiosResponse<string>> {
-    return api.get(`chunk/${id}/output`);
+    return api.get(`chunk/${id}/output`, {
+        withCredentials: true,
+    });
 }
