@@ -1,10 +1,20 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { Notify } from 'quasar';
+import { CSRF_HEADER_NAME } from 'src/utils/constants';
+import { useUserStore } from 'src/stores';
+import { storeToRefs } from 'pinia';
+import { getCSRFToken } from 'src/service/service';
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
         $axios: AxiosInstance;
+    }
+}
+
+declare module 'axios' {
+    export interface AxiosRequestConfig {
+        withCsrf?: boolean;
     }
 }
 
@@ -16,7 +26,7 @@ declare module '@vue/runtime-core' {
 // for each client)
 const api = axios.create({ baseURL: process.env.BACKEND_HTTPS_URL });
 
-export default boot(({ app }) => {
+export default boot(async ({ app }) => {
     // for use inside Vue files (Options API) through this.$axios and this.$api
     app.config.globalProperties.$axios = axios;
     // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
@@ -25,6 +35,18 @@ export default boot(({ app }) => {
     app.config.globalProperties.$api = api;
     // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
     //       so you can easily perform requests against your app's API
+
+    const userStore = useUserStore();
+    const { csrfToken } = storeToRefs(userStore);
+
+    api.interceptors.request.use((config) => {
+        if (config.withCsrf) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            config.headers.common[CSRF_HEADER_NAME] = csrfToken.value;
+        }
+
+        return config;
+    });
 
     api.interceptors.response.use(
         (response) => {
@@ -42,6 +64,8 @@ export default boot(({ app }) => {
             return Promise.reject(error);
         }
     );
+    const response = await getCSRFToken();
+    csrfToken.value = response.data;
 });
 
 export { api };

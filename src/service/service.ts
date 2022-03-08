@@ -10,16 +10,28 @@ import {
 } from 'src/types/requests';
 import { UserLoginResponse } from 'src/types/responses';
 
+export async function getCSRFToken(): Promise<AxiosResponse<string>> {
+    return api.get('user/csrf', {
+        withCredentials: true,
+    });
+}
+
 export async function registerAccount(payload: UserCreateRequest): Promise<AxiosResponse<void>> {
-    return api.post('user/create', payload);
+    return api.post('user/create', payload, {
+        withCsrf: true,
+    });
 }
 
 export async function checkAccountConfirmationValid(payload: CheckConfirmationLinkValidRequest) {
-    return api.post('confirmation/verify', payload);
+    return api.post('confirmation/verify', payload, {
+        withCsrf: true,
+    });
 }
 
 export async function finishAccount(payload: UserFinishRequest): Promise<AxiosResponse<void>> {
-    return api.post('user/finish', payload);
+    return api.post('user/finish', payload, {
+        withCsrf: true,
+    });
 }
 
 export async function loginUser(
@@ -27,6 +39,7 @@ export async function loginUser(
 ): Promise<AxiosResponse<UserLoginResponse>> {
     return api.post('user/login', payload, {
         withCredentials: true,
+        withCsrf: true,
     });
 }
 
@@ -44,12 +57,14 @@ export async function getApiKeysForUser(userId: User['id']): Promise<AxiosRespon
 export async function createAPIKey(payload: CreateApiKeyRequest): Promise<AxiosResponse<string>> {
     return api.post('apiKey/create', payload, {
         withCredentials: true,
+        withCsrf: true,
     });
 }
 
 export async function deleteAPIKey(id: APIKey['id']): Promise<AxiosResponse<void>> {
     return api.delete(`apiKey/${id}`, {
         withCredentials: true,
+        withCsrf: true,
     });
 }
 
@@ -62,6 +77,7 @@ export async function getPayloadsForUser(userId: User['id']): Promise<AxiosRespo
 export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<void>> {
     return api.post('payload/createPayload', payload, {
         withCredentials: true,
+        withCsrf: true,
     });
 }
 
