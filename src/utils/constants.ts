@@ -2,6 +2,7 @@ import { OperandTypes, Operations, Role } from 'src/types/enums';
 
 export const CHUNK_SIZE = 1000;
 export const REWARD_TIMEOUT_MS = 2000;
+export const CSRF_HEADER_NAME = 'CSRF-Token';
 
 export const OPERATIONS = [
     {

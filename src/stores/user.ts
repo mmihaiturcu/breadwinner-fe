@@ -10,7 +10,8 @@ interface UserStoreState {
     currentActiveAuthenticationComponent: 'LoginForm' | 'RegisterForm';
     loginPayload: UserLoginRequest;
     registerPayload: UserCreateRequest;
-    userDetails: UserLoginResponse;
+    userDetails: Omit<UserLoginResponse, 'csrfToken'>;
+    csrfToken: string;
 }
 
 const UserStoreState: UserStoreState = {
@@ -29,6 +30,7 @@ const UserStoreState: UserStoreState = {
         email: '',
         role: Role.DATA_SUPPLIER,
     },
+    csrfToken: '',
 };
 
 export { UserStoreState };
