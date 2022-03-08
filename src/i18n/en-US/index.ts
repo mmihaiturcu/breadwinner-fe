@@ -24,6 +24,7 @@ export default {
         apiKeys: 'API Keys',
         payloads: 'Payloads',
         dataProcessingTest: 'Data processing test',
+        logout: 'Log out',
     },
     apiKeys: {
         createdTitle: "It's dangerous to go alone, take this!",

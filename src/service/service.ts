@@ -18,19 +18,31 @@ export async function getCSRFToken(): Promise<AxiosResponse<string>> {
 
 export async function registerAccount(payload: UserCreateRequest): Promise<AxiosResponse<void>> {
     return api.post('user/create', payload, {
+        preSession: true,
+        withCredentials: true,
         withCsrf: true,
     });
 }
 
 export async function checkAccountConfirmationValid(payload: CheckConfirmationLinkValidRequest) {
     return api.post('confirmation/verify', payload, {
+        preSession: true,
+        withCredentials: true,
         withCsrf: true,
     });
 }
 
 export async function finishAccount(payload: UserFinishRequest): Promise<AxiosResponse<void>> {
     return api.post('user/finish', payload, {
+        preSession: true,
+        withCredentials: true,
         withCsrf: true,
+    });
+}
+
+export async function getLoggedInSession(): Promise<AxiosResponse<UserLoginResponse | ''>> {
+    return api.get('user/loggedInSession', {
+        withCredentials: true,
     });
 }
 
@@ -38,6 +50,7 @@ export async function loginUser(
     payload: UserLoginRequest
 ): Promise<AxiosResponse<UserLoginResponse>> {
     return api.post('user/login', payload, {
+        preSession: true,
         withCredentials: true,
         withCsrf: true,
     });
@@ -92,5 +105,12 @@ export async function getPayloadDecryptInfo(
 export async function getProcessedChunkOutput(id: number): Promise<AxiosResponse<string>> {
     return api.get(`chunk/${id}/output`, {
         withCredentials: true,
+    });
+}
+
+export async function logout(): Promise<AxiosResponse<string>> {
+    return api.post('user/logout', null, {
+        withCredentials: true,
+        withCsrf: true,
     });
 }

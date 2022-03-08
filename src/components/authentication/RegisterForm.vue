@@ -69,9 +69,9 @@ import { ref, defineComponent } from 'vue';
 export default defineComponent({
     name: 'RegisterForm',
     setup() {
-        const { registerPayload, currentActiveAuthenticationComponent } = storeToRefs(
-            useUserStore()
-        );
+        const userStore = useUserStore();
+
+        const { registerPayload, currentActiveAuthenticationComponent } = storeToRefs(userStore);
         const { t } = useGlobalI18n();
         const { validateEmail } = useEmailValidation();
 
@@ -82,6 +82,7 @@ export default defineComponent({
             loading: ref(false),
             t,
             validateEmail,
+            userStore,
         };
     },
     methods: {
