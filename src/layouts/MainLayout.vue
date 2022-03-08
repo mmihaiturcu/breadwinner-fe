@@ -9,7 +9,7 @@
         </q-header>
 
         <q-drawer v-model="leftDrawerOpen" bordered>
-            <q-list>
+            <q-list class="column full-height">
                 <q-item class="navigation-breadwinner-item">
                     <q-item-section avatar class="relative-position">
                         <Logo class="navigation-breadwinner-logo" />
@@ -27,6 +27,7 @@
                 <q-item
                     v-for="(item, index) in navigationItems"
                     :key="index"
+                    class="navigation-item"
                     clickable
                     ripple
                     @click="item.clickHandler"
@@ -57,6 +58,7 @@ import { NavigationItem } from 'src/types/models';
 import { useGlobalI18n } from 'src/utils/hooks';
 import { defineComponent, ref } from 'vue';
 import Logo from 'src/components/Logo.vue';
+import { logout } from 'src/service/service';
 
 export default defineComponent({
     name: 'MainLayout',
@@ -107,14 +109,30 @@ export default defineComponent({
                 },
             };
         },
+        logoutNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-logout',
+                label: this.t('navigation.logout'),
+                routeName: 'logout',
+                clickHandler: async () => {
+                    const response = await logout();
+                    this.userStore.csrfToken = response.data;
+                    await this.$router.replace({ path: '/login' });
+                },
+            };
+        },
         dataSupplierNavigationItems(): NavigationItem[] {
-            return [this.payloadsNavigationItem];
+            return [this.payloadsNavigationItem, this.logoutNavigationItem];
         },
         dataProcessorNavigationItems(): NavigationItem[] {
-            return [this.apiKeysNavigationItem, this.dataProcessingTestNavigationItem];
+            return [
+                this.apiKeysNavigationItem,
+                this.dataProcessingTestNavigationItem,
+                this.logoutNavigationItem,
+            ];
         },
         adminNavigationItems(): NavigationItem[] {
-            return [];
+            return [this.logoutNavigationItem];
         },
         navigationItems(): NavigationItem[] {
             switch (this.userDetails.role) {
@@ -145,6 +163,12 @@ export default defineComponent({
         position: absolute;
         top: 15px;
         left: 15px;
+    }
+}
+
+.navigation-item {
+    &:last-child {
+        margin-top: auto;
     }
 }
 </style>

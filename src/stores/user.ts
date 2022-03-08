@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { getCSRFToken } from 'src/service/service';
 import { Role } from 'src/types/enums';
 import { UserCreateRequest, UserLoginRequest } from 'src/types/requests';
 import { UserLoginResponse } from 'src/types/responses';
@@ -43,6 +44,12 @@ export const useUserStore = defineStore({
                 ? localStorage.getItem(storeID) ?? JSON.stringify(UserStoreState)
                 : JSON.stringify(UserStoreState)
         ) as UserStoreState,
+    actions: {
+        async regenerateSession() {
+            const response = await getCSRFToken();
+            this.csrfToken = response.data;
+        },
+    },
 });
 
 export type UserStore = ReturnType<typeof useUserStore>;
