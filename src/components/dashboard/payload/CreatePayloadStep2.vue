@@ -13,7 +13,8 @@
                 v-for="payloadTab in payloadTabs"
                 :key="payloadTab.name"
                 :name="payloadTab.name"
-                :label="payloadTab.name"
+                :label="payloadTab.label"
+                @dblclick="onDoubleClickTab(payloadTab)"
             />
             <q-icon
                 name="mdi-plus"
@@ -127,13 +128,14 @@
                 @click="currentPayloadCreationStep -= 1"
             />
             <q-btn
-                :disable="currentPayloadTab.state.operations.length === 0"
+                :disable="!canNavigateToStep3"
                 color="primary"
                 label="Next"
                 icon="mdi-arrow-right-bold"
                 @click="currentPayloadCreationStep += 1"
             />
         </q-stepper-navigation>
+        <EditPayloadTabModal v-if="showEditPayloadTabModal" />
     </div>
 </template>
 
@@ -141,7 +143,9 @@
 import { storeToRefs } from 'pinia';
 import { QSelectProps, QTableProps } from 'quasar';
 import { usePayloadStore } from 'src/stores';
+import { PayloadTab } from 'src/types/models/PayloadTab';
 import { defineComponent, ref } from 'vue';
+import EditPayloadTabModal from './EditPayloadTabModal.vue';
 
 export default defineComponent({
     name: 'CreatePayloadStep1',
@@ -153,8 +157,8 @@ export default defineComponent({
             currentPayloadTabName,
             currentPayloadTab,
             currentPayloadCreationStep,
+            showEditPayloadTabModal,
         } = storeToRefs(payloadStore);
-
         return {
             uploadedDataset,
             pagination: ref({
@@ -166,6 +170,7 @@ export default defineComponent({
             splitTabRatio: ref(80),
             currentPayloadTab,
             currentPayloadCreationStep,
+            showEditPayloadTabModal,
         };
     },
     computed: {
@@ -185,12 +190,19 @@ export default defineComponent({
                 icon: 'mdi-numeric',
             }));
         },
+        canNavigateToStep3(): boolean {
+            return (
+                this.currentPayloadTab.state.operations.length > 0 &&
+                this.payloadTabs.every((payloadTab) => payloadTab.state.operations.length > 0)
+            );
+        },
     },
     methods: {
         addNewPayloadTab() {
             this.payloadStore.$patch((state) => {
                 state.payloadTabs.push({
                     name: `Payload ${this.payloadTabs.length + 1}`,
+                    label: `Payload ${this.payloadTabs.length + 1}`,
                     state: {
                         selectedRows: [],
                         selectedHeader: {
@@ -211,7 +223,14 @@ export default defineComponent({
         removeLatestOperation() {
             this.currentPayloadTab.state.operations.pop();
         },
+        onDoubleClickTab(payloadTab: PayloadTab) {
+            this.payloadStore.$patch((state) => {
+                state.payloadTabToEdit = payloadTab;
+                state.showEditPayloadTabModal = true;
+            });
+        },
     },
+    components: { EditPayloadTabModal },
 });
 </script>
 
