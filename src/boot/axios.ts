@@ -14,7 +14,7 @@ declare module '@vue/runtime-core' {
 declare module 'axios' {
     export interface AxiosRequestConfig {
         withCsrf?: boolean;
-        preSession?: boolean;
+        refreshCSRFToken?: boolean;
     }
 }
 
@@ -40,7 +40,7 @@ export default boot(({ app }) => {
     const { csrfToken } = storeToRefs(userStore);
 
     api.interceptors.request.use(async (config) => {
-        if (config.preSession) {
+        if (config.refreshCSRFToken) {
             await userStore.regenerateSession();
         }
 

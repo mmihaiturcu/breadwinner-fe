@@ -66,6 +66,7 @@ export default defineComponent({
                             payloadTabs: [
                                 {
                                     name: 'Payload 1',
+                                    label: 'Payload 1',
                                     state: {
                                         selectedRows: [],
                                         selectedHeader: null,

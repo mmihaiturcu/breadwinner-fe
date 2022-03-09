@@ -18,7 +18,7 @@ export async function getCSRFToken(): Promise<AxiosResponse<string>> {
 
 export async function registerAccount(payload: UserCreateRequest): Promise<AxiosResponse<void>> {
     return api.post('user/create', payload, {
-        preSession: true,
+        refreshCSRFToken: true,
         withCredentials: true,
         withCsrf: true,
     });
@@ -26,7 +26,7 @@ export async function registerAccount(payload: UserCreateRequest): Promise<Axios
 
 export async function checkAccountConfirmationValid(payload: CheckConfirmationLinkValidRequest) {
     return api.post('confirmation/verify', payload, {
-        preSession: true,
+        refreshCSRFToken: true,
         withCredentials: true,
         withCsrf: true,
     });
@@ -34,14 +34,14 @@ export async function checkAccountConfirmationValid(payload: CheckConfirmationLi
 
 export async function finishAccount(payload: UserFinishRequest): Promise<AxiosResponse<void>> {
     return api.post('user/finish', payload, {
-        preSession: true,
+        refreshCSRFToken: true,
         withCredentials: true,
         withCsrf: true,
     });
 }
 
-export async function getLoggedInSession(): Promise<AxiosResponse<UserLoginResponse | ''>> {
-    return api.get('user/loggedInSession', {
+export async function getSession(): Promise<AxiosResponse<UserLoginResponse | ''>> {
+    return api.get('user/session', {
         withCredentials: true,
     });
 }
@@ -50,7 +50,7 @@ export async function loginUser(
     payload: UserLoginRequest
 ): Promise<AxiosResponse<UserLoginResponse>> {
     return api.post('user/login', payload, {
-        preSession: true,
+        refreshCSRFToken: true,
         withCredentials: true,
         withCsrf: true,
     });

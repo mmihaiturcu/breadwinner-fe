@@ -29,7 +29,7 @@
                         <q-btn
                             icon="mdi-content-save"
                             color="primary"
-                            :label="t('payload.downloadKeyPair')"
+                            :label="`Download key pair${generatedKeyPairs.length > 1 ? 's' : ''}`"
                             @click="downloadKeyPair"
                         />
                     </q-item-section>
@@ -54,25 +54,32 @@ export default defineComponent({
     name: 'CreateApiKeyModal',
     setup() {
         const payloadStore = usePayloadStore();
-        const { showKeyPairModal, keyPair } = storeToRefs(payloadStore);
+        const { showKeyPairModal, generatedKeyPairs, payloadTabs } = storeToRefs(payloadStore);
         const { t } = useGlobalI18n();
 
         return {
-            keyPair,
+            generatedKeyPairs,
             t,
             showKeyPairModal,
+            payloadTabs,
         };
     },
     methods: {
         downloadKeyPair() {
-            const file = new File([JSON.stringify(this.keyPair)], 'keyPair.json', {
-                type: 'application/json',
+            this.generatedKeyPairs.forEach((keyPair) => {
+                const file = new File(
+                    [JSON.stringify(keyPair.pair)],
+                    `keyPair${keyPair.label}.json`,
+                    {
+                        type: 'application/json',
+                    }
+                );
+                saveAs(file);
             });
-            saveAs(file);
         },
         confirmKeyPair() {
             this.showKeyPairModal = false;
-            this.keyPair = { publicKey: '', privateKey: '' };
+            this.generatedKeyPairs = [];
         },
     },
 });

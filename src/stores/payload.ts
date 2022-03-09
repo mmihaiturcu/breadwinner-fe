@@ -19,11 +19,17 @@ interface PayloadStoreState {
     currentPayloadTabName: string;
     showAddOperationModal: boolean;
     keyPair: KeyPair;
+    generatedKeyPairs: {
+        pair: KeyPair;
+        label: string;
+    }[];
     showKeyPairModal: boolean;
     showDecryptPayloadModal: boolean;
     payloadToDecryptId: Payload['id'];
     currentPayloadDecryptionStep: number;
     uploadedKeyPairFile: null | File;
+    showEditPayloadTabModal: boolean;
+    payloadTabToEdit: PayloadTab | null;
 }
 
 const PayloadStoreState: PayloadStoreState = {
@@ -42,11 +48,14 @@ const PayloadStoreState: PayloadStoreState = {
         publicKey: '',
         privateKey: '',
     },
+    generatedKeyPairs: [],
     showKeyPairModal: false,
     showDecryptPayloadModal: false,
     payloadToDecryptId: -1,
     currentPayloadDecryptionStep: 1,
     uploadedKeyPairFile: null,
+    showEditPayloadTabModal: false,
+    payloadTabToEdit: null,
 };
 
 export { PayloadStoreState };
@@ -72,7 +81,7 @@ export const usePayloadStore = defineStore({
             const userStore = useUserStore();
 
             await FHEModule.initFHEContext();
-            this.keyPair = FHEModule.generateKeys();
+            const keyPair = FHEModule.generateKeys();
 
             const payloads: PayloadDTO[] = this.payloadTabs.map((payloadTab) => {
                 const chunks = chunkArray(
@@ -85,8 +94,11 @@ export const usePayloadStore = defineStore({
                     (row) => row[payloadTab.state.selectedHeader!.value] as number
                 );
 
+                this.generatedKeyPairs.push({ pair: keyPair, label: payloadTab.label });
+
                 return {
                     userId: userStore.userDetails.id,
+                    label: payloadTab.label,
                     chunks: chunks.map((chunk) => ({
                         length: chunk.length,
                         cipherText: FHEModule.encryptData(chunk).save(),
@@ -102,7 +114,7 @@ export const usePayloadStore = defineStore({
                             resultType: operation.resultType,
                         })),
                     },
-                    publicKey: this.keyPair.publicKey,
+                    publicKey: keyPair.publicKey,
                 };
             });
             console.log(payloads);

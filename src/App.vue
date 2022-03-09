@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { getLoggedInSession } from 'src/service/service';
+import { getSession } from 'src/service/service';
 import { useUserStore } from './stores';
 import { storeToRefs } from 'pinia';
 import { DEFAULT_ROUTES } from './utils/constants';
@@ -21,7 +21,7 @@ export default defineComponent({
         };
     },
     async created() {
-        const sessionResponse = await getLoggedInSession();
+        const sessionResponse = await getSession();
         if (sessionResponse.data !== '') {
             this.userStore.$patch({
                 userDetails: {
