@@ -105,6 +105,7 @@ export default defineComponent({
         return {
             payloads,
             columns: [
+                { name: 'label', label: 'Label', field: 'label', sortable: true },
                 { name: 'noChunks', label: 'Number of chunks', field: 'noChunks', sortable: true },
                 {
                     name: 'totalDataLength',
