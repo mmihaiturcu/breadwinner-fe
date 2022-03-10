@@ -6,4 +6,5 @@ export interface PayloadDTO {
     chunks: Chunk[];
     jsonSchema: JSONSchema;
     publicKey: string;
+    galoisKeys?: string;
 }
