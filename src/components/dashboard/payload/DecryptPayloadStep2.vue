@@ -60,16 +60,25 @@ export default defineComponent({
                             const response = await getProcessedChunkOutput(chunk.id);
                             const cipherTextArray = FHEModule.seal!.CipherText();
                             cipherTextArray.load(FHEModule.context!, response.data);
-                            console.log(cipherTextArray.size);
                             const decryptedArray = FHEModule.decryptData(cipherTextArray).slice(
                                 0,
                                 chunk.length
                             );
-                            console.log('decrypted partial array', decryptedArray);
                             plainTextResult.push(...decryptedArray);
                         }
+                    }
+                    case OperandTypes.NUMBER: {
+                        plainTextResult = 0;
 
-                        console.log('full array is ', plainTextResult);
+                        for (const chunk of payloadDecryptInfo.chunks) {
+                            const response = await getProcessedChunkOutput(chunk.id);
+                            const cipherTextArray = FHEModule.seal!.CipherText();
+                            cipherTextArray.load(FHEModule.context!, response.data);
+                            const decryptedArray = FHEModule.decryptData(cipherTextArray);
+                            const decryptedNumber = decryptedArray[0];
+
+                            plainTextResult += decryptedNumber;
+                        }
                     }
                 }
 

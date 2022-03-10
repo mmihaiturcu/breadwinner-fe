@@ -6,6 +6,7 @@ import FHEModule from 'src/utils/FHEModule';
 import { chunkArray } from 'src/utils/helper';
 import { Notify } from 'quasar';
 import { useUserStore } from '.';
+import { OperandTypes, Operations } from 'src/types/enums';
 
 const storeID = 'payload';
 
@@ -81,9 +82,22 @@ export const usePayloadStore = defineStore({
             const userStore = useUserStore();
 
             await FHEModule.initFHEContext();
-            const keyPair = FHEModule.generateKeys();
+            FHEModule.initKeyGenerator();
 
             const payloads: PayloadDTO[] = this.payloadTabs.map((payloadTab) => {
+                const keyPair = FHEModule.generateKeys();
+                let galoisKeys = undefined as undefined | string;
+                // Special case if we're performing addition for a single array (sum of its elements). In this case, we have to create special Galois keys.
+                if (
+                    payloadTab.state.operations.some(
+                        (operation) =>
+                            operation.operationObject.name === Operations.ADD &&
+                            operation.operands.length === 1 &&
+                            operation.operands[0].type === OperandTypes.ARRAY
+                    )
+                ) {
+                    galoisKeys = FHEModule.generateGaloisKeys();
+                }
                 const chunks = chunkArray(
                     this.uploadedDataset.data.map(
                         (row) => row[payloadTab.state.selectedHeader!.value] as number
@@ -115,6 +129,7 @@ export const usePayloadStore = defineStore({
                         })),
                     },
                     publicKey: keyPair.publicKey,
+                    galoisKeys,
                 };
             });
             console.log(payloads);

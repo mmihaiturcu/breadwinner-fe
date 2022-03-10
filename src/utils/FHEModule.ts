@@ -6,17 +6,20 @@ import { PublicKey } from 'node-seal/implementation/public-key';
 import { SecretKey } from 'node-seal/implementation/secret-key';
 import { CipherText } from 'node-seal/implementation/cipher-text';
 import { KeyPair } from 'src/types/models';
+import { KeyGenerator } from 'node-seal/implementation/key-generator';
 
 export class FHEModule {
     public static instance: FHEModule;
     public seal: null | SEALLibrary;
     public context: null | Context;
+    public keyGenerator: null | KeyGenerator;
     public publicKey: null | PublicKey;
     public privateKey: null | SecretKey;
 
     private constructor() {
         this.seal = null;
         this.context = null;
+        this.keyGenerator = null;
         this.publicKey = null;
         this.privateKey = null;
     }
@@ -63,20 +66,25 @@ export class FHEModule {
         this.seal = seal;
         this.context = context;
     }
+    initKeyGenerator(): void {
+        if (this.seal && this.context) {
+            // Create a new KeyGenerator (creates a new keypair internally)
+            this.keyGenerator = this.seal.KeyGenerator(this.context);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
     generateKeys(): {
         publicKey: string;
         privateKey: string;
     } {
-        if (this.seal && this.context) {
+        if (this.seal && this.context && this.keyGenerator) {
             ////////////////////////
             // Keys
             ////////////////////////
 
-            // Create a new KeyGenerator (creates a new keypair internally)
-            const keyGenerator = this.seal.KeyGenerator(this.context);
-
-            this.privateKey = keyGenerator.secretKey();
-            this.publicKey = keyGenerator.createPublicKey();
+            this.privateKey = this.keyGenerator.secretKey();
+            this.publicKey = this.keyGenerator.createPublicKey();
             // const relinKey = keyGenerator.createRelinKeys();
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
@@ -123,6 +131,60 @@ export class FHEModule {
                 publicKey: this.publicKey.save(),
                 privateKey: this.privateKey.save(),
             };
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+    generateGaloisKeys(): string {
+        if (this.seal && this.context && this.keyGenerator) {
+            ////////////////////////
+            // Keys
+            ////////////////////////
+
+            const galoisKeys = this.keyGenerator.createGaloisKeys();
+            // const relinKey = keyGenerator.createRelinKeys();
+            // // Generating Galois keys takes a while compared to the others
+            // const galoisKey = keyGenerator.createGaloisKeys();
+
+            // Saving a key to a string is the same for each type of key
+            // const secretBase64Key = secretKey.save();
+            // const publicBase64Key = publicKey.save();
+            // const relinBase64Key = relinKey.save();
+            // // Please note saving Galois keys can take an even longer time and the output is **very** large.
+            // const galoisBase64Key = galoisKey.save();
+
+            // Loading a key from a base64 string is the same for each type of key
+            // Load from the base64 encoded string
+            // const UploadedSecretKey = seal.SecretKey();
+            // UploadedSecretKey.load(context, secretBase64Key);
+
+            // NOTE
+            //
+            // A KeyGenerator can also be instantiated with existing keys. This allows you to generate
+            // new Relin/Galois keys with a previously generated SecretKey.
+
+            // // Uploading a SecretKey: first, create an Empty SecretKey to load
+            // const UploadedSecretKey = seal.SecretKey()
+
+            // // Load from the base64 encoded string
+            // UploadedSecretKey.load(context, secretBase64Key)
+
+            // // Create a new KeyGenerator (use uploaded secretKey)
+            // const keyGenerator = seal.KeyGenerator(context, UploadedSecretKey)
+
+            // // Similarly, you may also create a KeyGenerator with a PublicKey. However, the benefit is purley to
+            // // save time by not generating a new PublicKey
+
+            // // Uploading a PublicKey: first, create an Empty PublicKey to load
+            // const UploadedPublicKey = seal.PublicKey()
+
+            // // Load from the base64 encoded string
+            // UploadedPublicKey.load(context, publicBase64Key)
+
+            // // Create a new KeyGenerator (use both uploaded keys)
+            // const keyGenerator = seal.KeyGenerator(context, UploadedSecretKey, UploadedPublicKey)
+
+            return galoisKeys.save();
         } else {
             throw new Error('FHE Module has not been initialized.');
         }

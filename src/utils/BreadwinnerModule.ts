@@ -1,6 +1,7 @@
+import { CipherText } from 'node-seal/implementation/cipher-text';
 import { Notify } from 'quasar';
 import { Operations, WebsocketEventTypes } from 'src/types/enums';
-import { ChunkToProcess, JSONSchema, PayloadToProcess } from 'src/types/models';
+import { ChunkToProcess, PayloadToProcess } from 'src/types/models';
 import { REWARD_TIMEOUT_MS } from './constants';
 import FHEModule from './FHEModule';
 import OperationsCalculator from './OperationsCalculator';
@@ -44,21 +45,30 @@ class BreadwinnerModule {
         console.log('closed', event);
     }
 
-    private processChunk(chunk: ChunkToProcess, jsonSchema: JSONSchema): string {
+    private processChunk(chunk: ChunkToProcess, payload: PayloadToProcess): string {
         console.log(chunk.input);
-        const dataObject = new Map<string | number, string>([['data', chunk.input]]);
-        console.log(dataObject, chunk, jsonSchema, dataObject.get('data'));
+        const dataObject = new Map<string | number, CipherText>();
+        const dataCipherText = FHEModule.seal!.CipherText();
+        dataCipherText.load(FHEModule.context!, chunk.input);
+        dataObject.set('data', dataCipherText);
+
+        const galoisKeys = FHEModule.seal!.GaloisKeys();
+
+        if (payload.galoisKeys) {
+            galoisKeys.load(FHEModule.context!, payload.galoisKeys);
+        }
 
         const evaluator = FHEModule.seal?.Evaluator(FHEModule.context!);
 
         if (evaluator) {
-            for (const [index, operation] of jsonSchema.operations.entries()) {
+            for (const [index, operation] of payload.jsonSchema.operations.entries()) {
                 switch (operation.name) {
                     case Operations.ADD:
                         dataObject.set(
                             index,
                             OperationsCalculator[Operations.ADD](
                                 evaluator,
+                                galoisKeys,
                                 ...operation.operands.map((operand) => ({
                                     type: operand.type,
                                     data: dataObject.get(operand.field)!,
@@ -72,7 +82,7 @@ class BreadwinnerModule {
             throw new Error('Evaluator not available.');
         }
 
-        return dataObject.get(jsonSchema.operations.length - 1)!;
+        return dataObject.get(payload.jsonSchema.operations.length - 1)!.save();
     }
 
     private async processPayload(event: MessageEvent<string>) {
@@ -90,7 +100,7 @@ class BreadwinnerModule {
             await FHEModule.initFHEContext();
             FHEModule.setPublicKey(payload.publicKey);
 
-            const result = this.processChunk(chunkToProcess, payload.jsonSchema);
+            const result = this.processChunk(chunkToProcess, payload);
 
             console.log('processing result', result);
 
