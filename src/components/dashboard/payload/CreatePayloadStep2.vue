@@ -52,25 +52,6 @@
 
                     <template v-slot:after>
                         <div class="q-pa-md">
-                            <q-select
-                                class="header-select"
-                                name="numericHeaderIndex"
-                                label="Dataset property"
-                                :options="numericHeaderOptions"
-                                v-model="payloadTab.state.selectedHeader"
-                            >
-                                <template v-slot:option="scope">
-                                    <q-item v-bind="scope.itemProps">
-                                        <q-item-section avatar>
-                                            <q-icon :name="scope.opt.icon" />
-                                        </q-item-section>
-                                        <q-item-section>
-                                            <q-item-label>{{ scope.opt.label }}</q-item-label>
-                                        </q-item-section>
-                                    </q-item>
-                                </template>
-                            </q-select>
-
                             <q-toolbar class="q-mt-md bg-primary">
                                 <q-toolbar-title class="text-center text-white">
                                     Operations
@@ -108,7 +89,6 @@
 
                                 <q-btn
                                     class="q-mt-md full-width"
-                                    :disable="!payloadTab.state.selectedHeader"
                                     color="primary"
                                     icon="mdi-plus"
                                     @click="openAddOperationModal"
@@ -205,11 +185,6 @@ export default defineComponent({
                     label: `Payload ${this.payloadTabs.length + 1}`,
                     state: {
                         selectedRows: [],
-                        selectedHeader: {
-                            label: '',
-                            value: -1,
-                            isNumeric: false,
-                        },
                         operations: [],
                     },
                 });

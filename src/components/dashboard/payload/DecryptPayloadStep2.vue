@@ -52,8 +52,11 @@ export default defineComponent({
 
                 let plainTextResult = null as null | number | Array<number>;
 
+                console.log('End result type is', payloadDecryptInfo.endResultType);
+
                 switch (payloadDecryptInfo.endResultType) {
                     case OperandTypes.ARRAY: {
+                        console.log('End result type is an array');
                         plainTextResult = [];
 
                         for (const chunk of payloadDecryptInfo.chunks) {
@@ -64,10 +67,14 @@ export default defineComponent({
                                 0,
                                 chunk.length
                             );
+
+                            console.log('Partial array', decryptedArray);
                             plainTextResult.push(...decryptedArray);
                         }
+                        break;
                     }
                     case OperandTypes.NUMBER: {
+                        console.log('End result type is a number');
                         plainTextResult = 0;
 
                         for (const chunk of payloadDecryptInfo.chunks) {
@@ -79,8 +86,11 @@ export default defineComponent({
 
                             plainTextResult += decryptedNumber;
                         }
+                        break;
                     }
                 }
+
+                console.log('final result', plainTextResult);
 
                 if (plainTextResult) {
                     this.$q.notify({

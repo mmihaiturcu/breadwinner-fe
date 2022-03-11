@@ -69,7 +69,6 @@ export default defineComponent({
                                     label: 'Payload 1',
                                     state: {
                                         selectedRows: [],
-                                        selectedHeader: null,
                                         operations: [],
                                     },
                                 },

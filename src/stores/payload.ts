@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { createPayload, getPayloadsForUser } from 'src/service/service';
-import { Dataset, KeyPair, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
+import { Chunk, Dataset, KeyPair, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
 import { CHUNK_SIZE } from 'src/utils/constants';
 import FHEModule from 'src/utils/FHEModule';
 import { chunkArray } from 'src/utils/helper';
@@ -98,25 +98,58 @@ export const usePayloadStore = defineStore({
                 ) {
                     galoisKeys = FHEModule.generateGaloisKeys();
                 }
-                const chunks = chunkArray(
-                    this.uploadedDataset.data.map(
-                        (row) => row[payloadTab.state.selectedHeader!.value] as number
-                    ),
-                    CHUNK_SIZE
-                ) as number[][];
-                this.uploadedDataset.data.map(
-                    (row) => row[payloadTab.state.selectedHeader!.value] as number
-                );
+
+                // Get the selected columns of the dataset, in order to chunk & encrypt them.
+                const selectedColumnIndicesSet: Set<number> = new Set();
+
+                payloadTab.state.operations
+                    .map((operation) => operation.operands)
+                    .forEach((operands) => {
+                        operands
+                            .filter((operand) => 'columnIndex' in operand)
+                            .forEach((operand) =>
+                                selectedColumnIndicesSet.add(operand.columnIndex as number)
+                            );
+                    });
+
+                const chunksByColumn: Record<number, number[][]> = {};
+
+                selectedColumnIndicesSet.forEach((columnIndex) => {
+                    chunksByColumn[columnIndex] = chunkArray(
+                        this.uploadedDataset.data.map((row) => row[columnIndex] as number),
+                        CHUNK_SIZE
+                    ) as number[][];
+                });
+
+                console.log(chunksByColumn);
+
+                const dataLengths = chunksByColumn[
+                    selectedColumnIndicesSet.values().next().value as number
+                ].map((chunk) => chunk.length);
+
+                const chunks = new Array<Chunk>(dataLengths.length);
+
+                dataLengths.forEach((chunkLength, index) => {
+                    const chunkObject: Record<string, string> = {};
+
+                    selectedColumnIndicesSet.forEach(
+                        (columnIndex) =>
+                            (chunkObject[columnIndex] = FHEModule.encryptData(
+                                chunksByColumn[columnIndex][index]
+                            ).save())
+                    );
+                    chunks[index] = {
+                        length: chunkLength,
+                        cipherText: chunkObject,
+                    };
+                });
 
                 this.generatedKeyPairs.push({ pair: keyPair, label: payloadTab.label });
 
                 return {
                     userId: userStore.userDetails.id,
                     label: payloadTab.label,
-                    chunks: chunks.map((chunk) => ({
-                        length: chunk.length,
-                        cipherText: FHEModule.encryptData(chunk).save(),
-                    })),
+                    chunks,
                     jsonSchema: {
                         totalDataLength: this.uploadedDataset.data.length,
                         operations: payloadTab.state.operations.map((operation) => ({
