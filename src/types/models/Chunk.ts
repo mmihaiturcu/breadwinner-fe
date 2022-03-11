@@ -1,4 +1,4 @@
 export interface Chunk {
     length: number;
-    cipherText: string; // serialized CipherText
+    cipherText: Record<string, string>; // serialized CipherText
 }

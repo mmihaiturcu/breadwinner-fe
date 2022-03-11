@@ -98,7 +98,8 @@ export default defineComponent({
     setup() {
         const payloadStore = usePayloadStore();
 
-        const { showAddOperationModal, currentPayloadTab } = storeToRefs(payloadStore);
+        const { showAddOperationModal, currentPayloadTab, numericHeaders } =
+            storeToRefs(payloadStore);
 
         return {
             showAddOperationModal,
@@ -109,17 +110,33 @@ export default defineComponent({
                 resultType: null as null | OperandTypes,
             }),
             currentPayloadTab,
+            numericHeaders,
         };
     },
     computed: {
         availableOperands(): OperandOption[] {
-            return [
-                {
-                    label: this.currentPayloadTab.state.selectedHeader!.label,
-                    value: 'data',
+            console.log([
+                ...this.numericHeaders.map((header) => ({
+                    label: header.label,
+                    value: header.value,
                     icon: 'mdi-numeric',
                     type: OperandTypes.ARRAY,
-                },
+                })),
+                ...this.currentPayloadTab.state.operations.map((operation, index) => ({
+                    label: `Operation ${index + 1} result`,
+                    value: index,
+                    icon: 'mdi-numeric',
+                    type: operation.resultType,
+                })),
+            ]);
+            return [
+                ...this.numericHeaders.map((header) => ({
+                    label: header.label,
+                    value: `d${header.value}`,
+                    icon: 'mdi-numeric',
+                    type: OperandTypes.ARRAY,
+                    columnIndex: header.value,
+                })),
                 ...this.currentPayloadTab.state.operations.map((operation, index) => ({
                     label: `Operation ${index + 1} result`,
                     value: index,

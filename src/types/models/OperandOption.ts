@@ -5,4 +5,5 @@ export interface OperandOption {
     value: string | number; // either 'data' or step results such as 0, 1, 2
     icon: string;
     type: OperandTypes;
+    columnIndex?: number;
 }

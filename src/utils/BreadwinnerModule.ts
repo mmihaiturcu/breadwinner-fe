@@ -10,6 +10,7 @@ class BreadwinnerModule {
     public static instance: BreadwinnerModule;
     private apiKey?: string;
     private websocketConnection?: WebSocket;
+    private timeoutHandle?: ReturnType<typeof setTimeout>;
 
     public static getInstance(): BreadwinnerModule {
         if (!this.instance) {
@@ -46,11 +47,15 @@ class BreadwinnerModule {
     }
 
     private processChunk(chunk: ChunkToProcess, payload: PayloadToProcess): string {
-        console.log(chunk.input);
+        console.log(chunk, payload);
         const dataObject = new Map<string | number, CipherText>();
-        const dataCipherText = FHEModule.seal!.CipherText();
-        dataCipherText.load(FHEModule.context!, chunk.input);
-        dataObject.set('data', dataCipherText);
+        const columnsData = JSON.parse(chunk.columnsData) as Record<string, string>;
+
+        Object.entries(columnsData).forEach(([field, data]) => {
+            const cipherText = FHEModule.seal!.CipherText();
+            cipherText.load(FHEModule.context!, data);
+            dataObject.set(`d${field}`, cipherText);
+        });
 
         const galoisKeys = FHEModule.seal!.GaloisKeys();
 
@@ -120,7 +125,7 @@ class BreadwinnerModule {
             });
         }
 
-        setTimeout(() => this.requestPayload(), REWARD_TIMEOUT_MS);
+        this.timeoutHandle = setTimeout(() => this.requestPayload(), REWARD_TIMEOUT_MS);
     }
 
     private initializeWebsocketConnection() {
@@ -140,6 +145,15 @@ class BreadwinnerModule {
         }
 
         this.initializeWebsocketConnection();
+    }
+
+    public disconnect() {
+        if (this.websocketConnection?.readyState === WebSocket.OPEN) {
+            if (this.timeoutHandle) {
+                clearTimeout(this.timeoutHandle);
+            }
+            this.websocketConnection.close();
+        }
     }
 }
 
