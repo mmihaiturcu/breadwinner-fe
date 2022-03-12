@@ -2,7 +2,7 @@ export enum Operations {
     ADD,
     SUBTRACT,
     MULTIPLY,
-    SQUARE,
-    DIVIDE,
-    SQUARE_ROOT,
+    EXPONENTIATION,
+    // DIVIDE,
+    // SQUARE_ROOT,
 }

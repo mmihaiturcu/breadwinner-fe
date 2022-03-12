@@ -60,7 +60,7 @@ class BreadwinnerModule {
 
         payload.jsonSchema.operations.forEach((operation, operationIndex) => {
             operation.operands.forEach((operand) => {
-                if ('plaintextValue' in operand) {
+                if ('plaintextValue' in operand && !('isRaw' in operand)) {
                     const plainText = FHEModule.batchEncoder!.encode(
                         Int32Array.from(new Array(chunk.length).fill(operand.plaintextValue))
                     )!;
@@ -123,6 +123,18 @@ class BreadwinnerModule {
                                     type: operand.type,
                                     data: dataObject.get(operand.field)!,
                                 }))
+                            )
+                        );
+                        break;
+                    }
+                    case Operations.EXPONENTIATION: {
+                        dataObject.set(
+                            index,
+                            OperationsCalculator[Operations.EXPONENTIATION](
+                                evaluator,
+                                relinKeys,
+                                dataObject.get(operation.operands[0].field)! as CipherText,
+                                operation.operands[1].plaintextValue as number
                             )
                         );
                         break;

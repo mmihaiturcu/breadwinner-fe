@@ -7,5 +7,6 @@ export interface OperandOption {
     type: OperandTypes;
     columnIndex?: number;
     isPlaintext?: boolean;
+    isRaw?: boolean;
     plaintextValue?: number | string;
 }

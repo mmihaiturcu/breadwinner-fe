@@ -105,7 +105,7 @@ export const usePayloadStore = defineStore({
 
                 if (
                     payloadTab.state.operations.some(
-                        (operation) => operation.operationObject.name === Operations.MULTIPLY
+                        (operation) => operation.operationObject.requiresRelinKeys
                     )
                 ) {
                     relinKeys = FHEModule.generateRelinKeys();
@@ -170,7 +170,10 @@ export const usePayloadStore = defineStore({
                                 field: operand.value as string,
                                 type: operand.type,
                                 ...('plaintextValue' in operand
-                                    ? { plaintextValue: operand.plaintextValue }
+                                    ? {
+                                          plaintextValue: operand.plaintextValue,
+                                          ...(operand.isRaw ? { isRaw: true } : {}),
+                                      }
                                     : {}),
                             })),
                             resultType: operation.resultType,

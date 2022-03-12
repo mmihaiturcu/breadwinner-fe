@@ -8,4 +8,5 @@ export interface Operation {
     minOperands: number;
     maxOperands: number;
     resultTypes: ResultType;
+    requiresRelinKeys?: boolean;
 }
