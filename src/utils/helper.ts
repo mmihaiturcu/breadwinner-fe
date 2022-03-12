@@ -1,4 +1,5 @@
 export const chunkArray = function (array: unknown[], chunkSize: number): Array<Array<unknown>> {
+    console.log('CHunking', array, array.length, chunkSize);
     const length = array.length;
     const chunks = new Array<Array<unknown>>(Math.ceil(length / chunkSize));
     let currentChunk = 0;

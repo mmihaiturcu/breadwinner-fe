@@ -7,4 +7,5 @@ export interface PayloadDTO {
     jsonSchema: JSONSchema;
     publicKey: string;
     galoisKeys?: string;
+    relinKeys?: string;
 }

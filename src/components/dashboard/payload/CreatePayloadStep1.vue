@@ -51,6 +51,7 @@ export default defineComponent({
                         result.data.forEach(
                             (data: unknown, index) => ((data as { index: number }).index = index)
                         );
+                        console.log('papa parsed', result.data);
                         this.uploadedDataset = {
                             data: result.data,
                             headers: headers!.map((header, index) => {
