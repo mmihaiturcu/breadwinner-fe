@@ -46,6 +46,7 @@ export const OPERATIONS = [
         icon: 'mdi-multiplication',
         minOperands: 2,
         maxOperands: 2,
+        requiresRelinKeys: true,
         resultTypes: {
             [OperandTypes.NUMBER]: {
                 [OperandTypes.NUMBER]: OperandTypes.NUMBER,
@@ -58,43 +59,48 @@ export const OPERATIONS = [
         },
     },
     {
-        name: Operations.SQUARE,
-        label: 'Square',
-        icon: 'mdi-multiplication',
-        minOperands: 1,
-        maxOperands: 1,
-        resultTypes: {
-            [OperandTypes.NUMBER]: OperandTypes.NUMBER,
-            [OperandTypes.ARRAY]: OperandTypes.ARRAY,
-        },
-    },
-    {
-        name: Operations.DIVIDE,
-        label: 'Divide',
-        icon: 'mdi-division',
+        name: Operations.EXPONENTIATION,
+        label: 'Exponentiation',
+        icon: 'mdi-exponent',
         minOperands: 2,
         maxOperands: 2,
+        requiresRelinKeys: true,
         resultTypes: {
-            [OperandTypes.NUMBER]: {
-                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
-            },
             [OperandTypes.ARRAY]: {
                 [OperandTypes.NUMBER]: OperandTypes.ARRAY,
             },
-        },
-    },
-    {
-        name: Operations.SQUARE_ROOT,
-        label: 'Square root',
-        icon: 'mdi-square-root',
-        minOperands: 1,
-        maxOperands: 1,
-        resultTypes: {
             [OperandTypes.NUMBER]: {
                 [OperandTypes.NUMBER]: OperandTypes.NUMBER,
             },
         },
     },
+    // {
+    //     name: Operations.DIVIDE,
+    //     label: 'Divide',
+    //     icon: 'mdi-division',
+    //     minOperands: 2,
+    //     maxOperands: 2,
+    //     resultTypes: {
+    //         [OperandTypes.NUMBER]: {
+    //             [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+    //         },
+    //         [OperandTypes.ARRAY]: {
+    //             [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+    //         },
+    //     },
+    // },
+    // {
+    //     name: Operations.SQUARE_ROOT,
+    //     label: 'Square root',
+    //     icon: 'mdi-square-root',
+    //     minOperands: 1,
+    //     maxOperands: 1,
+    //     resultTypes: {
+    //         [OperandTypes.NUMBER]: {
+    //             [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+    //         },
+    //     },
+    // },
 ];
 
 export const COMPLEX_OPERATION_PRESETS = {

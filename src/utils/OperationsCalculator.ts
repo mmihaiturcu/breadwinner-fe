@@ -124,4 +124,12 @@ export default {
             throw new Error('Unsupported operand types.');
         }
     },
+    [Operations.EXPONENTIATION]: (
+        evaluator: Evaluator,
+        relinKeys: RelinKeys,
+        cipherTextOperand: CipherText,
+        exponent: number
+    ): CipherText => {
+        return evaluator.exponentiate(cipherTextOperand, exponent, relinKeys)!;
+    },
 };

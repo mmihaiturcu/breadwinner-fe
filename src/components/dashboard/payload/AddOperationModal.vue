@@ -99,7 +99,7 @@ import { usePayloadStore } from 'src/stores';
 import { defineComponent, ref } from 'vue';
 import { OPERATIONS } from 'src/utils/constants';
 import { OperandOption, Operation, ResultType } from 'src/types/models';
-import { OperandTypes } from 'src/types/enums';
+import { OperandTypes, Operations } from 'src/types/enums';
 
 export default defineComponent({
     name: 'AddOperationModal',
@@ -123,6 +123,17 @@ export default defineComponent({
         };
     },
     computed: {
+        operationSpecificConditions(): boolean {
+            switch (this.operation.operationObject?.name) {
+                case Operations.EXPONENTIATION:
+                    return (
+                        this.operation.operands.length === 2 &&
+                        this.operation.operands[1]!.isRaw === true
+                    );
+                default:
+                    return true;
+            }
+        },
         canAddOperation(): boolean {
             return (
                 this.operation.operationObject != null &&
@@ -187,6 +198,7 @@ export default defineComponent({
                     icon: 'mdi-numeric',
                     type: OperandTypes.NUMBER,
                     isPlaintext: true,
+                    isRaw: this.operation.operationObject?.name === Operations.EXPONENTIATION,
                     plaintextValue: '',
                 },
             ];
@@ -194,6 +206,7 @@ export default defineComponent({
         changeOperation(newOperation: Operation) {
             this.operation.operationObject = newOperation;
             this.operation.operands = new Array(newOperation.minOperands).fill(null);
+            this.setAvailableOperands();
         },
         addOperand() {
             this.operation.operands.push(null);
@@ -211,9 +224,6 @@ export default defineComponent({
             console.log('Added new operation', JSON.parse(JSON.stringify(this.operation)));
             this.showAddOperationModal = false;
         },
-    },
-    created() {
-        this.setAvailableOperands();
     },
 });
 </script>
