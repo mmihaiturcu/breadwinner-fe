@@ -95,9 +95,10 @@ export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<
 }
 
 export async function getPayloadDecryptInfo(
+    userId: User['id'],
     id: Payload['id']
 ): Promise<AxiosResponse<DecryptPayloadDTO>> {
-    return api.get(`payload/${id}/decryptInfo`, {
+    return api.get(`payload/${userId}/${id}/decryptInfo`, {
         withCredentials: true,
     });
 }

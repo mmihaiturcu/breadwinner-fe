@@ -8,7 +8,7 @@
 import saveAs from 'file-saver';
 import { storeToRefs } from 'pinia';
 import { getPayloadDecryptInfo, getProcessedChunkOutput } from 'src/service/service';
-import { usePayloadStore } from 'src/stores';
+import { usePayloadStore, useUserStore } from 'src/stores';
 import { OperandTypes } from 'src/types/enums';
 import FHEModule from 'src/utils/FHEModule';
 import { defineComponent } from 'vue';
@@ -17,18 +17,20 @@ export default defineComponent({
     name: 'CreatePayloadStep1',
     setup() {
         const payloadStore = usePayloadStore();
+        const userStore = useUserStore();
         const { uploadedKeyPairFile, keyPair, payloadToDecryptId } = storeToRefs(payloadStore);
+        const { userDetails } = storeToRefs(userStore);
 
         return {
             uploadedKeyPairFile,
             keyPair,
             payloadToDecryptId,
             payloadStore,
+            userDetails,
         };
     },
     methods: {
         downloadDecryptedData(data: Array<unknown> | number) {
-            // TODO: insert the payload name in the file name somewhere
             const file = new File(
                 [JSON.stringify({ result: data })],
                 `payload_${this.payloadToDecryptId}_result.json`,
@@ -41,7 +43,10 @@ export default defineComponent({
         async decryptPayload() {
             if (this.uploadedKeyPairFile) {
                 // Fetch some info about payload in order to complete the processing
-                const response = await getPayloadDecryptInfo(this.payloadToDecryptId);
+                const response = await getPayloadDecryptInfo(
+                    this.userDetails.id,
+                    this.payloadToDecryptId
+                );
                 const payloadDecryptInfo = response.data;
                 // In the case of an array type end result, we should only concatenate the resulting arrays from each chunk that was processed.
                 // In the case of a number type result, we must sum all the numbers and divide by the number of chunks.
