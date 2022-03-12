@@ -1,5 +1,7 @@
 import { route } from 'quasar/wrappers';
 import { useUserStore } from 'src/stores/user';
+import { Role } from 'src/types/enums';
+import { DEFAULT_ROUTES } from 'src/utils/constants';
 import {
     createMemoryHistory,
     createRouter,
@@ -7,6 +9,12 @@ import {
     createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+declare module 'vue-router' {
+    export interface RouteMeta extends Record<string | number | symbol, unknown> {
+        requiresAuthentication?: boolean;
+        availableRoles: Record<Role, boolean>;
+    }
+}
 
 /*
  * If not building with SSR mode, you can
@@ -44,7 +52,13 @@ export default route(function (/* { store, ssrContext } */) {
                     params: { nextUrl: to.fullPath },
                 });
             } else {
-                next();
+                if (to.meta.availableRoles[userStore.userDetails.role]) {
+                    next();
+                } else {
+                    next({
+                        path: DEFAULT_ROUTES[userStore.userDetails.role],
+                    });
+                }
             }
         } else {
             next();

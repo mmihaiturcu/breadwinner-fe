@@ -1,3 +1,4 @@
+import { Role } from 'src/types/enums';
 import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
@@ -33,6 +34,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('src/pages/PageDashboard.vue'),
                 meta: {
                     requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_PROCESSOR]: true,
+                        [Role.DATA_SUPPLIER]: true,
+                    },
                 },
             },
             {
@@ -41,6 +47,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('src/pages/PageApiKeys.vue'),
                 meta: {
                     requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_SUPPLIER]: false,
+                        [Role.DATA_PROCESSOR]: true,
+                    },
                 },
             },
             {
@@ -49,6 +60,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('src/pages/PageDataProcessingTest.vue'),
                 meta: {
                     requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_SUPPLIER]: false,
+                        [Role.DATA_PROCESSOR]: true,
+                    },
                 },
             },
             {
@@ -57,6 +73,11 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('src/pages/PagePayloads.vue'),
                 meta: {
                     requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_SUPPLIER]: true,
+                        [Role.DATA_PROCESSOR]: false,
+                    },
                 },
             },
         ],
