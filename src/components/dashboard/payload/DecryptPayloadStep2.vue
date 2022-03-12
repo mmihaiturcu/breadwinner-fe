@@ -63,6 +63,7 @@ export default defineComponent({
                             const response = await getProcessedChunkOutput(chunk.id);
                             const cipherTextArray = FHEModule.seal!.CipherText();
                             cipherTextArray.load(FHEModule.context!, response.data);
+                            console.log(FHEModule.decryptData(cipherTextArray));
                             const decryptedArray = FHEModule.decryptData(cipherTextArray).slice(
                                 0,
                                 chunk.length
@@ -116,8 +117,6 @@ export default defineComponent({
                     currentPayloadDecryptionStep: 1,
                     uploadedKeyPairFile: null,
                 });
-
-                // TODO: Perform cleanup in the FHEModule (clean up private keys, public keys)
             }
         },
     },

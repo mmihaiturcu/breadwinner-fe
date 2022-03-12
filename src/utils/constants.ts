@@ -46,6 +46,16 @@ export const OPERATIONS = [
         icon: 'mdi-multiplication',
         minOperands: 2,
         maxOperands: 2,
+        resultTypes: {
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+                [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+            },
+            [OperandTypes.ARRAY]: {
+                [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+                [OperandTypes.ARRAY]: OperandTypes.ARRAY,
+            },
+        },
     },
     {
         name: Operations.SQUARE,

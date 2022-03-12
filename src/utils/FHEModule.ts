@@ -11,6 +11,7 @@ import { BatchEncoder } from 'node-seal/implementation/batch-encoder';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
 import { Encryptor } from 'node-seal/implementation/encryptor';
 import { Decryptor } from 'node-seal/implementation/decryptor';
+import { RelinKeys } from 'node-seal/implementation/relin-keys';
 
 export class FHEModule {
     public static instance: FHEModule;
@@ -23,6 +24,7 @@ export class FHEModule {
     public publicKey: null | PublicKey;
     public privateKey: null | SecretKey;
     public galoisKeys: null | GaloisKeys;
+    public relinKeys: null | RelinKeys;
 
     private constructor() {
         this.seal = null;
@@ -34,6 +36,7 @@ export class FHEModule {
         this.publicKey = null;
         this.privateKey = null;
         this.galoisKeys = null;
+        this.relinKeys = null;
     }
 
     async initFHEContext(): Promise<void> {
@@ -41,8 +44,8 @@ export class FHEModule {
         seal.SchemeType.bfv;
         const schemeType = seal.SchemeType.bfv;
         const securityLevel = seal.SecurityLevel.tc128;
-        const polyModulusDegree = 4096;
-        const bitSizes = [36, 36, 37];
+        const polyModulusDegree = 8192;
+        // const bitSizes = [36, 36, 37];
         const bitSize = 40; // Controls the max number that we can work with / encrypt.
 
         const encParms = seal.EncryptionParameters(schemeType);
@@ -51,9 +54,7 @@ export class FHEModule {
         encParms.setPolyModulusDegree(polyModulusDegree);
 
         // Create a suitable set of CoeffModulus primes
-        encParms.setCoeffModulus(
-            seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes))
-        );
+        encParms.setCoeffModulus(seal.CoeffModulus.BFVDefault(polyModulusDegree));
 
         // Set the PlainModulus to a prime of bitSize 20.
         encParms.setPlainModulus(seal.PlainModulus.Batching(polyModulusDegree, bitSize));
@@ -199,6 +200,14 @@ export class FHEModule {
             throw new Error('FHE Module has not been initialized.');
         }
     }
+    generateRelinKeys(): string {
+        if (this.seal && this.context && this.keyGenerator) {
+            this.relinKeys = this.keyGenerator.createRelinKeys();
+            return this.relinKeys.save();
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
     setPublicKey(publicKey: string) {
         if (this.seal && this.context) {
             this.publicKey = this.seal.PublicKey();
@@ -261,10 +270,7 @@ export class FHEModule {
         }
     }
     decryptData(encryptedData: CipherText): Int32Array | Uint32Array {
-        if (this.seal && this.context && this.decryptor) {
-            // Create a BatchEncoder (only BFV SchemeType)
-            const encoder = this.seal.BatchEncoder(this.context);
-
+        if (this.seal && this.context && this.decryptor && this.batchEncoder) {
             // Decrypt a CipherText
             const plainTextD = this.decryptor.decrypt(encryptedData);
 
@@ -272,7 +278,7 @@ export class FHEModule {
                 // `signed` defaults to 'true' if not specified and will return an Int32Array.
                 // If you have encrypted a Uint32Array and wish to decrypt it, set
                 // this to false.
-                const decoded = encoder.decode(
+                const decoded = this.batchEncoder.decode(
                     plainTextD,
                     true // Can be omitted since this defaults to true.
                 );
@@ -326,6 +332,7 @@ export class FHEModule {
         this.publicKey?.delete();
         this.privateKey?.delete();
         this.galoisKeys?.delete();
+        this.relinKeys?.delete();
     }
 
     public static getInstance(): FHEModule {

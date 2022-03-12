@@ -3,6 +3,7 @@ import { CipherText } from 'node-seal/implementation/cipher-text';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
 import { PlainText } from 'node-seal/implementation/plain-text';
+import { RelinKeys } from 'node-seal/implementation/relin-keys';
 import { OperandTypes, Operations } from 'src/types/enums';
 import { CalculatorOperand } from 'src/types/models';
 import FHEModule from './FHEModule';
@@ -74,6 +75,51 @@ export default {
                 operands[0].data as CipherText,
                 operands[1].data as PlainText
             )!;
+        } else {
+            throw new Error('Unsupported operand types.');
+        }
+    },
+    [Operations.MULTIPLY]: (
+        evaluator: Evaluator,
+        relinKeys: RelinKeys,
+        ...operands: CalculatorOperand[]
+    ): CipherText => {
+        if (operands.length === 2) {
+            if (
+                operands.every((operand) => operand.data.instance.constructor.name === 'Ciphertext')
+            ) {
+                // Ciphertext * Ciphertext (numbers or array, it doesn't matter.)
+                const cipher = evaluator.multiply(
+                    operands[0].data as CipherText,
+                    operands[1].data as CipherText
+                )!;
+
+                return evaluator.relinearize(cipher, relinKeys)!;
+            } else {
+                // Ciphertext * Plaintext (order matters, we need to call multiplyPlain correctly)
+                const indexOfTypesMap = new Map<
+                    'Plaintext' | 'Ciphertext',
+                    PlainText | CipherText
+                >();
+                indexOfTypesMap.set(
+                    'Plaintext',
+                    operands.find(
+                        (operand) => operand.data.instance.constructor.name === 'Plaintext'
+                    )!.data
+                );
+                indexOfTypesMap.set(
+                    'Ciphertext',
+                    operands.find(
+                        (operand) => operand.data.instance.constructor.name === 'Ciphertext'
+                    )!.data
+                );
+                const cipher = evaluator.multiplyPlain(
+                    indexOfTypesMap.get('Ciphertext') as CipherText,
+                    indexOfTypesMap.get('Plaintext') as PlainText
+                )!;
+
+                return evaluator.relinearize(cipher, relinKeys)!;
+            }
         } else {
             throw new Error('Unsupported operand types.');
         }

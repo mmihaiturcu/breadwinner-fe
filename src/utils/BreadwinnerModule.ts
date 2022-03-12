@@ -75,6 +75,12 @@ class BreadwinnerModule {
             galoisKeys.load(FHEModule.context!, payload.galoisKeys);
         }
 
+        const relinKeys = FHEModule.seal!.RelinKeys();
+
+        if (payload.relinKeys) {
+            relinKeys.load(FHEModule.context!, payload.relinKeys);
+        }
+
         const evaluator = FHEModule.seal?.Evaluator(FHEModule.context!);
 
         if (evaluator) {
@@ -105,6 +111,21 @@ class BreadwinnerModule {
                                 }))
                             )
                         );
+                        break;
+                    }
+                    case Operations.MULTIPLY: {
+                        dataObject.set(
+                            index,
+                            OperationsCalculator[Operations.MULTIPLY](
+                                evaluator,
+                                relinKeys,
+                                ...operation.operands.map((operand) => ({
+                                    type: operand.type,
+                                    data: dataObject.get(operand.field)!,
+                                }))
+                            )
+                        );
+                        break;
                     }
                 }
             }

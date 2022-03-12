@@ -99,6 +99,18 @@ export const usePayloadStore = defineStore({
                     galoisKeys = FHEModule.generateGaloisKeys();
                 }
 
+                let relinKeys = undefined as undefined | string;
+
+                // Special case for multiplication, we must relinearize ciphertext after multiplication.
+
+                if (
+                    payloadTab.state.operations.some(
+                        (operation) => operation.operationObject.name === Operations.MULTIPLY
+                    )
+                ) {
+                    relinKeys = FHEModule.generateRelinKeys();
+                }
+
                 // Get the selected columns of the dataset, in order to chunk & encrypt them.
                 const selectedColumnIndicesSet: Set<number> = new Set();
 
@@ -120,8 +132,6 @@ export const usePayloadStore = defineStore({
                         CHUNK_SIZE
                     ) as number[][];
                 });
-
-                console.log(selectedColumnIndicesSet);
 
                 const dataLengths = chunksByColumn[
                     selectedColumnIndicesSet.values().next().value as number
@@ -168,6 +178,7 @@ export const usePayloadStore = defineStore({
                     },
                     publicKey: keyPair.publicKey,
                     galoisKeys,
+                    relinKeys,
                 });
             }
 
