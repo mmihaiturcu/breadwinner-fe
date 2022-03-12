@@ -1,4 +1,5 @@
 import { CipherText } from 'node-seal/implementation/cipher-text';
+import { PlainText } from 'node-seal/implementation/plain-text';
 import { Notify } from 'quasar';
 import { Operations, WebsocketEventTypes } from 'src/types/enums';
 import { ChunkToProcess, PayloadToProcess } from 'src/types/models';
@@ -48,13 +49,24 @@ class BreadwinnerModule {
 
     private processChunk(chunk: ChunkToProcess, payload: PayloadToProcess): string {
         console.log(chunk, payload);
-        const dataObject = new Map<string | number, CipherText>();
+        const dataObject = new Map<string | number, CipherText | PlainText>();
         const columnsData = JSON.parse(chunk.columnsData) as Record<string, string>;
 
         Object.entries(columnsData).forEach(([field, data]) => {
             const cipherText = FHEModule.seal!.CipherText();
             cipherText.load(FHEModule.context!, data);
             dataObject.set(`d${field}`, cipherText);
+        });
+
+        payload.jsonSchema.operations.forEach((operation, operationIndex) => {
+            operation.operands.forEach((operand) => {
+                if ('plaintextValue' in operand) {
+                    const plainText = FHEModule.batchEncoder!.encode(
+                        Int32Array.from(new Array(chunk.length).fill(operand.plaintextValue))
+                    )!;
+                    dataObject.set(`p${operationIndex}`, plainText);
+                }
+            });
         });
 
         const galoisKeys = FHEModule.seal!.GaloisKeys();
@@ -68,7 +80,7 @@ class BreadwinnerModule {
         if (evaluator) {
             for (const [index, operation] of payload.jsonSchema.operations.entries()) {
                 switch (operation.name) {
-                    case Operations.ADD:
+                    case Operations.ADD: {
                         dataObject.set(
                             index,
                             OperationsCalculator[Operations.ADD](
@@ -81,13 +93,35 @@ class BreadwinnerModule {
                             )
                         );
                         break;
+                    }
+                    case Operations.SUBTRACT: {
+                        dataObject.set(
+                            index,
+                            OperationsCalculator[Operations.SUBTRACT](
+                                evaluator,
+                                ...operation.operands.map((operand) => ({
+                                    type: operand.type,
+                                    data: dataObject.get(operand.field)!,
+                                }))
+                            )
+                        );
+                    }
                 }
             }
         } else {
             throw new Error('Evaluator not available.');
         }
 
-        return dataObject.get(payload.jsonSchema.operations.length - 1)!.save();
+        const result = dataObject.get(payload.jsonSchema.operations.length - 1)!.save();
+
+        // Perform cleanup, deallocating any memory.
+        dataObject.forEach((value) => {
+            value.delete();
+        });
+
+        FHEModule.deallocate();
+
+        return result;
     }
 
     private async processPayload(event: MessageEvent<string>) {

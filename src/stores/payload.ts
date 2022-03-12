@@ -81,10 +81,10 @@ export const usePayloadStore = defineStore({
         async processPayloads() {
             const userStore = useUserStore();
 
-            await FHEModule.initFHEContext();
-            FHEModule.initKeyGenerator();
+            const payloads: PayloadDTO[] = [];
 
-            const payloads: PayloadDTO[] = this.payloadTabs.map((payloadTab) => {
+            for (const payloadTab of this.payloadTabs) {
+                await FHEModule.initFHEContext();
                 const keyPair = FHEModule.generateKeys();
                 let galoisKeys = undefined as undefined | string;
                 // Special case if we're performing addition for a single array (sum of its elements). In this case, we have to create special Galois keys.
@@ -121,7 +121,7 @@ export const usePayloadStore = defineStore({
                     ) as number[][];
                 });
 
-                console.log(chunksByColumn);
+                console.log(selectedColumnIndicesSet);
 
                 const dataLengths = chunksByColumn[
                     selectedColumnIndicesSet.values().next().value as number
@@ -136,7 +136,7 @@ export const usePayloadStore = defineStore({
                         (columnIndex) =>
                             (chunkObject[columnIndex] = FHEModule.encryptData(
                                 chunksByColumn[columnIndex][index]
-                            ).save())
+                            ))
                     );
                     chunks[index] = {
                         length: chunkLength,
@@ -146,7 +146,9 @@ export const usePayloadStore = defineStore({
 
                 this.generatedKeyPairs.push({ pair: keyPair, label: payloadTab.label });
 
-                return {
+                FHEModule.deallocate();
+
+                await createPayload({
                     userId: userStore.userDetails.id,
                     label: payloadTab.label,
                     chunks,
@@ -157,18 +159,16 @@ export const usePayloadStore = defineStore({
                             operands: operation.operands.map((operand) => ({
                                 field: operand.value as string,
                                 type: operand.type,
+                                ...('plaintextValue' in operand
+                                    ? { plaintextValue: operand.plaintextValue }
+                                    : {}),
                             })),
                             resultType: operation.resultType,
                         })),
                     },
                     publicKey: keyPair.publicKey,
                     galoisKeys,
-                };
-            });
-            console.log(payloads);
-
-            for (const payload of payloads) {
-                await createPayload(payload);
+                });
             }
 
             this.showCreatePayloadModal = false;

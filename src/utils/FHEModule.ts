@@ -7,21 +7,33 @@ import { SecretKey } from 'node-seal/implementation/secret-key';
 import { CipherText } from 'node-seal/implementation/cipher-text';
 import { KeyPair } from 'src/types/models';
 import { KeyGenerator } from 'node-seal/implementation/key-generator';
+import { BatchEncoder } from 'node-seal/implementation/batch-encoder';
+import { GaloisKeys } from 'node-seal/implementation/galois-keys';
+import { Encryptor } from 'node-seal/implementation/encryptor';
+import { Decryptor } from 'node-seal/implementation/decryptor';
 
 export class FHEModule {
     public static instance: FHEModule;
     public seal: null | SEALLibrary;
     public context: null | Context;
+    public batchEncoder: null | BatchEncoder;
+    public encryptor: null | Encryptor;
+    public decryptor: null | Decryptor;
     public keyGenerator: null | KeyGenerator;
     public publicKey: null | PublicKey;
     public privateKey: null | SecretKey;
+    public galoisKeys: null | GaloisKeys;
 
     private constructor() {
         this.seal = null;
         this.context = null;
+        this.batchEncoder = null;
+        this.encryptor = null;
+        this.decryptor = null;
         this.keyGenerator = null;
         this.publicKey = null;
         this.privateKey = null;
+        this.galoisKeys = null;
     }
 
     async initFHEContext(): Promise<void> {
@@ -65,14 +77,9 @@ export class FHEModule {
 
         this.seal = seal;
         this.context = context;
-    }
-    initKeyGenerator(): void {
-        if (this.seal && this.context) {
-            // Create a new KeyGenerator (creates a new keypair internally)
-            this.keyGenerator = this.seal.KeyGenerator(this.context);
-        } else {
-            throw new Error('FHE Module has not been initialized.');
-        }
+        // Create a BatchEncoder (only BFV SchemeType)
+        this.batchEncoder = this.seal.BatchEncoder(this.context);
+        this.keyGenerator = this.seal.KeyGenerator(this.context);
     }
     generateKeys(): {
         publicKey: string;
@@ -85,6 +92,9 @@ export class FHEModule {
 
             this.privateKey = this.keyGenerator.secretKey();
             this.publicKey = this.keyGenerator.createPublicKey();
+            this.initializeEncryptor();
+            this.initializeDecryptor();
+
             // const relinKey = keyGenerator.createRelinKeys();
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
@@ -141,7 +151,7 @@ export class FHEModule {
             // Keys
             ////////////////////////
 
-            const galoisKeys = this.keyGenerator.createGaloisKeys();
+            this.galoisKeys = this.keyGenerator.createGaloisKeys();
             // const relinKey = keyGenerator.createRelinKeys();
             // // Generating Galois keys takes a while compared to the others
             // const galoisKey = keyGenerator.createGaloisKeys();
@@ -184,7 +194,7 @@ export class FHEModule {
             // // Create a new KeyGenerator (use both uploaded keys)
             // const keyGenerator = seal.KeyGenerator(context, UploadedSecretKey, UploadedPublicKey)
 
-            return galoisKeys.save();
+            return this.galoisKeys.save();
         } else {
             throw new Error('FHE Module has not been initialized.');
         }
@@ -197,28 +207,19 @@ export class FHEModule {
             throw new Error('FHE Module has not been initialized.');
         }
     }
-    encryptData(data: number[]): CipherText {
-        if (this.seal && this.context && this.publicKey) {
+    encryptData(data: number[]): string {
+        if (this.seal && this.context && this.batchEncoder && this.encryptor) {
             ////////////////////////
             // Instances
             ////////////////////////
 
-            // Create an Evaluator which will allow HE functions to execute
-            const evaluator = this.seal.Evaluator(this.context);
-
-            // Create a BatchEncoder (only BFV SchemeType)
-            const encoder = this.seal.BatchEncoder(this.context);
-
             // Or a CKKSEncoder (only CKKS SchemeType)
             // const encoder = seal.CKKSEncoder(context)
-
-            // Create an Encryptor to encrypt PlainTexts
-            const encryptor = this.seal.Encryptor(this.context, this.publicKey);
 
             // Create a Decryptor to decrypt CipherTexts
 
             // Encode data to a PlainText
-            const plainTextA = encoder.encode(
+            const plainTextA = this.batchEncoder.encode(
                 Int32Array.from(data) // This could also be a Uint32Array
             );
 
@@ -243,15 +244,12 @@ export class FHEModule {
             //
             if (plainTextA) {
                 // Encrypt a PlainText
-                const cipherTextA = encryptor.encrypt(plainTextA);
+                const cipherTextA = this.encryptor.encrypt(plainTextA);
 
                 if (cipherTextA) {
-                    const cipherTextD = this.seal.CipherText();
-
-                    if (cipherTextA && cipherTextD) {
-                        evaluator.add(cipherTextA, cipherTextA, cipherTextD);
-                    }
-                    return cipherTextA;
+                    const encryptedBase64Data = cipherTextA.save();
+                    cipherTextA.delete();
+                    return encryptedBase64Data;
                 } else {
                     throw new Error('Ciphertext could not be created.');
                 }
@@ -263,23 +261,23 @@ export class FHEModule {
         }
     }
     decryptData(encryptedData: CipherText): Int32Array | Uint32Array {
-        if (this.seal && this.context && this.privateKey) {
-            const decryptor = this.seal.Decryptor(this.context, this.privateKey);
-
+        if (this.seal && this.context && this.decryptor) {
             // Create a BatchEncoder (only BFV SchemeType)
             const encoder = this.seal.BatchEncoder(this.context);
 
             // Decrypt a CipherText
-            const plainTextD = decryptor.decrypt(encryptedData);
+            const plainTextD = this.decryptor.decrypt(encryptedData);
 
             if (plainTextD) {
                 // `signed` defaults to 'true' if not specified and will return an Int32Array.
                 // If you have encrypted a Uint32Array and wish to decrypt it, set
                 // this to false.
-                return encoder.decode(
+                const decoded = encoder.decode(
                     plainTextD,
                     true // Can be omitted since this defaults to true.
                 );
+                plainTextD.delete();
+                return decoded;
             } else {
                 throw new Error('Could not decrypt ciphertext.');
             }
@@ -294,9 +292,40 @@ export class FHEModule {
             this.publicKey.load(this.context, keyPair.publicKey);
             this.privateKey = this.seal.SecretKey();
             this.privateKey.load(this.context, keyPair.privateKey);
+            this.initializeEncryptor();
+            this.initializeDecryptor();
         } else {
             throw new Error('FHE Module has not been initialized.');
         }
+    }
+
+    initializeEncryptor() {
+        if (this.seal && this.context && this.publicKey) {
+            this.encryptor?.delete();
+            this.encryptor = this.seal.Encryptor(this.context, this.publicKey);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+
+    initializeDecryptor() {
+        if (this.seal && this.context && this.privateKey) {
+            this.decryptor?.delete();
+            this.decryptor = this.seal.Decryptor(this.context, this.privateKey);
+        } else {
+            throw new Error('FHE Module has not been initialized.');
+        }
+    }
+
+    deallocate() {
+        this.context?.delete();
+        this.batchEncoder?.delete();
+        this.encryptor?.delete();
+        this.decryptor?.delete();
+        this.keyGenerator?.delete();
+        this.publicKey?.delete();
+        this.privateKey?.delete();
+        this.galoisKeys?.delete();
     }
 
     public static getInstance(): FHEModule {

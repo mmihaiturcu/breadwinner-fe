@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { CipherText } from 'node-seal/implementation/cipher-text';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
+import { PlainText } from 'node-seal/implementation/plain-text';
 import { OperandTypes, Operations } from 'src/types/enums';
 import { CalculatorOperand } from 'src/types/models';
 import FHEModule from './FHEModule';
@@ -11,22 +13,67 @@ export default {
         galoisKeys: GaloisKeys,
         ...operands: CalculatorOperand[]
     ): CipherText => {
-        if (operands.length === 1 && operands[0].type === OperandTypes.ARRAY) {
+        if (
+            operands.length === 1 &&
+            operands[0].type === OperandTypes.ARRAY &&
+            operands[0].data.instance.constructor.name === 'Ciphertext'
+        ) {
             // Sum vector elements
-            const result = evaluator.sumElements(
-                operands[0].data,
+            return evaluator.sumElements(
+                operands[0].data as CipherText,
                 galoisKeys,
                 FHEModule.seal!.SchemeType.bfv
             )!;
+        } else if (operands.length === 2) {
+            if (
+                operands.every((operand) => operand.data.instance.constructor.name === 'Ciphertext')
+            ) {
+                return evaluator.add(
+                    operands[0].data as CipherText,
+                    operands[1].data as CipherText
+                )!;
+            } else {
+                const indexOfTypesMap = new Map<
+                    'Plaintext' | 'Ciphertext',
+                    PlainText | CipherText
+                >();
+                indexOfTypesMap.set(
+                    'Plaintext',
+                    operands.find(
+                        (operand) => operand.data.instance.constructor.name === 'Plaintext'
+                    )!.data
+                );
+                indexOfTypesMap.set(
+                    'Ciphertext',
+                    operands.find(
+                        (operand) => operand.data.instance.constructor.name === 'Ciphertext'
+                    )!.data
+                );
 
-            return result;
+                return evaluator.addPlain(
+                    indexOfTypesMap.get('Ciphertext') as CipherText,
+                    indexOfTypesMap.get('Plaintext') as PlainText
+                )!;
+            }
+        } else {
+            throw new Error('Unsupported operand types.');
+        }
+    },
+    [Operations.SUBTRACT]: (evaluator: Evaluator, ...operands: CalculatorOperand[]): CipherText => {
+        if (
+            operands.length === 2 &&
+            operands.every((operand) => operand.data.instance.constructor.name === 'Ciphertext')
+        ) {
+            return evaluator.sub(operands[0].data as CipherText, operands[1].data as CipherText)!;
         } else if (
             operands.length === 2 &&
-            operands.every((operand) => operand.type === OperandTypes.ARRAY)
+            operands.some((operand) => operand.data.instance.constructor.name === 'Plaintext')
         ) {
-            const result = evaluator.add(operands[0].data, operands[1].data)!;
-
-            return result;
+            // case to handle subtracting a number from an array
+            return evaluator.subPlain(
+                operands[0].data as CipherText,
+                operands[1].data as PlainText
+            )!;
         } else {
             throw new Error('Unsupported operand types.');
         }

@@ -68,6 +68,8 @@ export default defineComponent({
                                 chunk.length
                             );
 
+                            cipherTextArray.delete();
+
                             console.log('Partial array', decryptedArray);
                             plainTextResult.push(...decryptedArray);
                         }
@@ -84,6 +86,8 @@ export default defineComponent({
                             const decryptedArray = FHEModule.decryptData(cipherTextArray);
                             const decryptedNumber = decryptedArray[0];
 
+                            cipherTextArray.delete();
+
                             plainTextResult += decryptedNumber;
                         }
                         break;
@@ -91,6 +95,7 @@ export default defineComponent({
                 }
 
                 console.log('final result', plainTextResult);
+                FHEModule.deallocate();
 
                 if (plainTextResult) {
                     this.$q.notify({
