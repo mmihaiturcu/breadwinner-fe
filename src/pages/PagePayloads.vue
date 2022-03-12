@@ -45,8 +45,17 @@
                             </q-item>
                         </q-list>
                         <q-separator />
-                        <q-card-section>
+                        <q-card-section class="actions-container column justify-center">
+                            <q-card-actions v-if="props.row.progress === 1" align="center">
+                                <q-btn
+                                    color="primary"
+                                    icon="mdi-lock-open"
+                                    label="Decrypt result"
+                                    @click="openDecryptPayloadModal(props.row.id)"
+                                />
+                            </q-card-actions>
                             <q-linear-progress
+                                v-else
                                 rounded
                                 stripe
                                 size="20px"
@@ -61,17 +70,6 @@
                                     />
                                 </div>
                             </q-linear-progress>
-                        </q-card-section>
-                        <q-separator />
-                        <q-card-section v-if="props.row.progress === 1">
-                            <q-card-actions align="center">
-                                <q-btn
-                                    color="primary"
-                                    icon="mdi-lock-open"
-                                    label="Decrypt result"
-                                    @click="openDecryptPayloadModal(props.row.id)"
-                                />
-                            </q-card-actions>
                         </q-card-section>
                     </q-card>
                 </div>
@@ -142,41 +140,6 @@ export default defineComponent({
 @use 'sass:math';
 @import 'src/css/quasar.variables.scss';
 
-$list-header-height: 48px;
-
-.card-list-container {
-    padding: 16px;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-rows: $list-header-height auto;
-    gap: 10px;
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.list-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0px 5px;
-    position: sticky;
-    top: 18px;
-    left: 0;
-    background: white;
-    border-radius: 4px;
-    box-shadow: map-get($map: $elevation-umbra-shadow-map, $key: 2) $elevation-umbra-shadow-color,
-        map-get($map: $elevation-penumbra-shadow-map, $key: 2) $elevation-penumbra-shadow-color,
-        map-get($map: $elevation-ambient-shadow-map, $key: 2) $elevation-ambient-shadow-color;
-}
-
-.card-list {
-    display: grid;
-    gap: 10px;
-    padding: 18px;
-    justify-content: center;
-}
-
 $logo-size: 50px;
 
 .payload-breadwinner-logo {
@@ -194,9 +157,22 @@ $logo-size: 50px;
         }
     }
 }
+
+.actions-container {
+    height: 84px;
+}
+
+.q-linear-progress {
+    height: 36px;
+}
+
 :deep(.payloads-table) {
     .q-table__middle {
         margin-bottom: 20px;
+    }
+
+    .q-table__grid-content {
+        row-gap: 40px;
     }
 }
 </style>
