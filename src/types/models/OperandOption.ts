@@ -6,4 +6,6 @@ export interface OperandOption {
     icon: string;
     type: OperandTypes;
     columnIndex?: number;
+    isPlaintext?: boolean;
+    plaintextValue?: number | string;
 }

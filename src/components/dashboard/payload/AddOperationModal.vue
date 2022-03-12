@@ -33,6 +33,7 @@
                         v-for="(operand, index) in operation.operands"
                         :key="index"
                         class="operand-container"
+                        :class="{ plaintext: operand?.isPlaintext }"
                     >
                         <q-select
                             :name="`select-operand-${index}`"
@@ -51,6 +52,13 @@
                                 </q-item>
                             </template>
                         </q-select>
+
+                        <q-input
+                            v-if="operand?.isPlaintext"
+                            type="number"
+                            v-model.number="operand.plaintextValue"
+                        />
+
                         <q-btn
                             v-if="canRemoveOperands && index === operation.operands.length - 1"
                             icon="mdi-delete"
@@ -111,45 +119,20 @@ export default defineComponent({
             }),
             currentPayloadTab,
             numericHeaders,
+            availableOperands: [] as OperandOption[],
         };
     },
     computed: {
-        availableOperands(): OperandOption[] {
-            console.log([
-                ...this.numericHeaders.map((header) => ({
-                    label: header.label,
-                    value: header.value,
-                    icon: 'mdi-numeric',
-                    type: OperandTypes.ARRAY,
-                })),
-                ...this.currentPayloadTab.state.operations.map((operation, index) => ({
-                    label: `Operation ${index + 1} result`,
-                    value: index,
-                    icon: 'mdi-numeric',
-                    type: operation.resultType,
-                })),
-            ]);
-            return [
-                ...this.numericHeaders.map((header) => ({
-                    label: header.label,
-                    value: `d${header.value}`,
-                    icon: 'mdi-numeric',
-                    type: OperandTypes.ARRAY,
-                    columnIndex: header.value,
-                })),
-                ...this.currentPayloadTab.state.operations.map((operation, index) => ({
-                    label: `Operation ${index + 1} result`,
-                    value: index,
-                    icon: 'mdi-numeric',
-                    type: operation.resultType,
-                })),
-            ];
-        },
         canAddOperation(): boolean {
             return (
                 this.operation.operationObject != null &&
-                this.operation.operands.every((operand) => operand !== null) &&
-                this.parsedOperationResultType !== null
+                this.operation.operands.every(
+                    (operand) =>
+                        operand !== null && (!operand.isPlaintext || operand.plaintextValue !== '')
+                ) &&
+                this.parsedOperationResultType !== null &&
+                this.parsedOperationResultType !== undefined &&
+                !this.operation.operands.every((operand) => operand!.isPlaintext)
                 // this.operation.operands.every((operand: null | OperandOption) => operand != null)
             );
         },
@@ -183,6 +166,31 @@ export default defineComponent({
         },
     },
     methods: {
+        setAvailableOperands() {
+            this.availableOperands = [
+                ...this.numericHeaders.map((header) => ({
+                    label: header.label,
+                    value: `d${header.value}`,
+                    icon: 'mdi-numeric',
+                    type: OperandTypes.ARRAY,
+                    columnIndex: header.value,
+                })),
+                ...this.currentPayloadTab.state.operations.map((operation, index) => ({
+                    label: `Operation ${index + 1} result`,
+                    value: index,
+                    icon: 'mdi-numeric',
+                    type: operation.resultType,
+                })),
+                {
+                    label: 'Plaintext number',
+                    value: `p${this.currentPayloadTab.state.operations.length}`,
+                    icon: 'mdi-numeric',
+                    type: OperandTypes.NUMBER,
+                    isPlaintext: true,
+                    plaintextValue: '',
+                },
+            ];
+        },
         changeOperation(newOperation: Operation) {
             this.operation.operationObject = newOperation;
             this.operation.operands = new Array(newOperation.minOperands).fill(null);
@@ -204,6 +212,9 @@ export default defineComponent({
             this.showAddOperationModal = false;
         },
     },
+    created() {
+        this.setAvailableOperands();
+    },
 });
 </script>
 
@@ -218,5 +229,9 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     gap: 10px;
+
+    &.plaintext {
+        grid-template-columns: 1fr 100px 30px;
+    }
 }
 </style>
