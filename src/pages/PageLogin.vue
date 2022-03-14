@@ -14,6 +14,7 @@
                 <AuthenticationForm />
             </div>
         </div>
+        <TwoFATokenModal v-if="showInput2FATokenModal" />
     </q-page>
 </template>
 
@@ -23,14 +24,20 @@ import Logo from 'src/components/Logo.vue';
 import gsap, { Linear, Back, Power1 } from 'gsap';
 import AuthenticationForm from 'src/components/authentication/AuthenticationForm.vue';
 import { doNothing } from 'src/utils/helper';
+import TwoFATokenModal from '../components/authentication/TwoFATokenModal.vue';
+import { useUserStore } from 'src/stores';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
     name: 'PageLogin',
     components: {
         Logo,
         AuthenticationForm,
+        TwoFATokenModal,
     },
     setup() {
+        const userStore = useUserStore();
+        const { showInput2FATokenModal } = storeToRefs(userStore);
         const winHeight = window.innerHeight,
             winWidth = window.innerWidth;
 
@@ -72,6 +79,7 @@ export default defineComponent({
                 opacityMin: 0.4,
                 opacityMax: 0.7,
             },
+            showInput2FATokenModal,
         };
     },
     methods: {

@@ -109,6 +109,16 @@ export default defineComponent({
                 },
             };
         },
+        twoFactorAuthenticationNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-two-factor-authentication',
+                label: this.t('navigation.twoFactorAuthentication'),
+                routeName: 'twoFactorAuthentication',
+                clickHandler: async () => {
+                    await this.$router.replace({ path: '/main/two-factor-authentication' });
+                },
+            };
+        },
         logoutNavigationItem(): NavigationItem {
             return {
                 icon: 'mdi-logout',
@@ -122,17 +132,22 @@ export default defineComponent({
             };
         },
         dataSupplierNavigationItems(): NavigationItem[] {
-            return [this.payloadsNavigationItem, this.logoutNavigationItem];
+            return [
+                this.payloadsNavigationItem,
+                this.twoFactorAuthenticationNavigationItem,
+                this.logoutNavigationItem,
+            ];
         },
         dataProcessorNavigationItems(): NavigationItem[] {
             return [
                 this.apiKeysNavigationItem,
                 this.dataProcessingTestNavigationItem,
+                this.twoFactorAuthenticationNavigationItem,
                 this.logoutNavigationItem,
             ];
         },
         adminNavigationItems(): NavigationItem[] {
-            return [this.logoutNavigationItem];
+            return [this.twoFactorAuthenticationNavigationItem, this.logoutNavigationItem];
         },
         navigationItems(): NavigationItem[] {
             switch (this.userDetails.role) {

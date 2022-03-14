@@ -80,6 +80,19 @@ const routes: RouteRecordRaw[] = [
                     },
                 },
             },
+            {
+                name: 'twoFactorAuthentication',
+                path: 'two-factor-authentication',
+                component: () => import('src/pages/Page2FA.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_SUPPLIER]: true,
+                        [Role.DATA_PROCESSOR]: true,
+                    },
+                },
+            },
         ],
     },
 

@@ -87,11 +87,20 @@ export default defineComponent({
                             id: response.data.id,
                             email: response.data.email,
                             role: response.data.role,
+                            enabled2FA: response.data.shouldValidate2FA,
                         },
-                        isLoggedIn: true,
                         csrfToken: response.data.csrfToken,
                     });
-                    await this.$router.replace({ path: DEFAULT_ROUTES[this.userDetails.role] });
+                    if (response.data.shouldValidate2FA) {
+                        this.userStore.$patch({
+                            showInput2FATokenModal: true,
+                        });
+                    } else {
+                        this.userStore.$patch({
+                            isLoggedIn: true,
+                        });
+                        await this.$router.replace({ path: DEFAULT_ROUTES[this.userDetails.role] });
+                    }
                 })
                 .catch((error: AxiosError) => {
                     if (error.response) {

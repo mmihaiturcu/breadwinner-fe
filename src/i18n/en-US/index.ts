@@ -24,6 +24,7 @@ export default {
         apiKeys: 'API Keys',
         payloads: 'Payloads',
         dataProcessingTest: 'Data processing test',
+        twoFactorAuthentication: 'Two factor authentication',
         logout: 'Log out',
     },
     apiKeys: {

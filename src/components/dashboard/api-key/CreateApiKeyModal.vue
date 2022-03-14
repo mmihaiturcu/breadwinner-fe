@@ -78,7 +78,6 @@ export default defineComponent({
 
             const response = await createAPIKey({
                 hostname: this.createApiKeyRequest.hostname,
-                userId: this.userDetails.id,
             });
 
             this.loading = false;
@@ -87,7 +86,7 @@ export default defineComponent({
             this.showReceiveAPIKeyModal = true;
 
             // Refresh API keys list to include the new one, and hide this modal.
-            await this.apiKeyStore.refreshApiKeys(this.userDetails.id);
+            await this.apiKeyStore.refreshApiKeys();
             this.showCreateApiKeyModal = false;
         },
     },

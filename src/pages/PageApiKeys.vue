@@ -86,7 +86,7 @@ export default defineComponent({
                         type: 'positive',
                         message: this.t('apiKeys.deletedSuccessfully'),
                     });
-                    await this.apiKeyStore.refreshApiKeys(this.userDetails.id);
+                    await this.apiKeyStore.refreshApiKeys();
                 })
                 .catch((error: AxiosError) => {
                     if (error.response) {
@@ -105,7 +105,7 @@ export default defineComponent({
         },
     },
     async mounted() {
-        await this.apiKeyStore.refreshApiKeys(this.userDetails.id);
+        await this.apiKeyStore.refreshApiKeys();
     },
 });
 </script>
