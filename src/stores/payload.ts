@@ -5,7 +5,6 @@ import { CHUNK_SIZE } from 'src/utils/constants';
 import FHEModule from 'src/utils/FHEModule';
 import { chunkArray } from 'src/utils/helper';
 import { Notify } from 'quasar';
-import { useUserStore } from '.';
 import { OperandTypes, Operations } from 'src/types/enums';
 
 const storeID = 'payload';
@@ -78,8 +77,6 @@ export const usePayloadStore = defineStore({
             this.payloads = response.data;
         },
         async processPayloads() {
-            const userStore = useUserStore();
-
             const payloads: PayloadDTO[] = [];
 
             for (const payloadTab of this.payloadTabs) {
@@ -158,7 +155,6 @@ export const usePayloadStore = defineStore({
                 FHEModule.deallocate();
 
                 await createPayload({
-                    userId: userStore.userDetails.id,
                     label: payloadTab.label,
                     chunks,
                     jsonSchema: {

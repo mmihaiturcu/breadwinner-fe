@@ -1,7 +1,6 @@
-import { Chunk, JSONSchema, User } from '.';
+import { Chunk, JSONSchema } from '.';
 
 export interface PayloadDTO {
-    userId: User['id'];
     label: string;
     chunks: Chunk[];
     jsonSchema: JSONSchema;

@@ -1,4 +1,4 @@
-export { User } from './User';
+export { UserDetails } from './UserDetails';
 export { NavigationItem } from './NavigationItem';
 export { APIKey } from './APIKey';
 export { Payload } from './Payload';

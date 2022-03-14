@@ -17,7 +17,6 @@ const ApiKeyStoreState: ApiKeyStoreState = {
     apiKeys: [],
     showCreateApiKeyModal: false,
     createApiKeyRequest: {
-        userId: -1,
         hostname: '',
     },
     newAPIKey: '',

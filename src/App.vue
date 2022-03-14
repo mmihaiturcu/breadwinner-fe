@@ -28,6 +28,7 @@ export default defineComponent({
                     id: sessionResponse.data.id,
                     email: sessionResponse.data.email,
                     role: sessionResponse.data.role,
+                    enabled2FA: sessionResponse.data.enabled2FA,
                 },
                 isLoggedIn: true,
                 csrfToken: sessionResponse.data.csrfToken,

@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { getCSRFToken } from 'src/service/service';
 import { Role } from 'src/types/enums';
+import { UserDetails } from 'src/types/models';
 import { UserCreateRequest, UserLoginRequest } from 'src/types/requests';
-import { UserLoginResponse } from 'src/types/responses';
 
 const storeID = 'user';
 
@@ -11,8 +11,14 @@ interface UserStoreState {
     currentActiveAuthenticationComponent: 'LoginForm' | 'RegisterForm';
     loginPayload: UserLoginRequest;
     registerPayload: UserCreateRequest;
-    userDetails: Omit<UserLoginResponse, 'csrfToken'>;
+    userDetails: UserDetails;
     csrfToken: string;
+    showInput2FATokenModal: boolean;
+    twoFAToken: string;
+    currentEnable2FAStep: number;
+    trialQRCodeDataURI: string;
+    trial2FASecret: string;
+    trial2FAToken: string;
 }
 
 const UserStoreState: UserStoreState = {
@@ -30,8 +36,15 @@ const UserStoreState: UserStoreState = {
         id: 0,
         email: '',
         role: Role.DATA_SUPPLIER,
+        enabled2FA: false,
     },
     csrfToken: '',
+    showInput2FATokenModal: false,
+    twoFAToken: '',
+    currentEnable2FAStep: 1,
+    trialQRCodeDataURI: '',
+    trial2FASecret: '',
+    trial2FAToken: '',
 };
 
 export { UserStoreState };

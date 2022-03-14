@@ -1,14 +1,15 @@
 import { AxiosResponse } from 'axios';
 import { api } from 'src/boot/axios';
-import { APIKey, DecryptPayloadDTO, Payload, PayloadDTO, User } from 'src/types/models';
+import { APIKey, DecryptPayloadDTO, Payload, PayloadDTO, UserDetails } from 'src/types/models';
 import {
     CheckConfirmationLinkValidRequest,
     CreateApiKeyRequest,
+    Enable2FARequest,
     UserCreateRequest,
     UserFinishRequest,
     UserLoginRequest,
 } from 'src/types/requests';
-import { UserLoginResponse } from 'src/types/responses';
+import { GetTrialQRCodeResponse, UserLoginResponse } from 'src/types/responses';
 
 export async function getCSRFToken(): Promise<AxiosResponse<string>> {
     return api.get('user/csrf', {
@@ -95,7 +96,7 @@ export async function createPayload(payload: PayloadDTO): Promise<AxiosResponse<
 }
 
 export async function getPayloadDecryptInfo(
-    userId: User['id'],
+    userId: UserDetails['id'],
     id: Payload['id']
 ): Promise<AxiosResponse<DecryptPayloadDTO>> {
     return api.get(`payload/${userId}/${id}/decryptInfo`, {
@@ -111,6 +112,34 @@ export async function getProcessedChunkOutput(id: number): Promise<AxiosResponse
 
 export async function logout(): Promise<AxiosResponse<string>> {
     return api.post('user/logout', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function getTrialQRCodeSecret(): Promise<AxiosResponse<GetTrialQRCodeResponse>> {
+    return api.post('user/getTrialQRCodeSecret', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function enable2FA(payload: Enable2FARequest): Promise<AxiosResponse<void>> {
+    return api.post('user/enable2FA', payload, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function disable2FA(): Promise<AxiosResponse<void>> {
+    return api.delete('user/disable2FA', {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function validate2FAToken(payload: { token: string }): Promise<AxiosResponse<void>> {
+    return api.post('user/validate2FAToken', payload, {
         withCredentials: true,
         withCsrf: true,
     });
