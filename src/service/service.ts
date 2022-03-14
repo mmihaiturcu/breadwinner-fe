@@ -56,8 +56,8 @@ export async function loginUser(
     });
 }
 
-export async function getApiKeysForUser(userId: User['id']): Promise<AxiosResponse<APIKey[]>> {
-    return api.get(`user/${userId}/apiKeys`, {
+export async function getApiKeysForUser(): Promise<AxiosResponse<APIKey[]>> {
+    return api.get('user/apiKeys', {
         withCredentials: true,
     });
 }
@@ -81,8 +81,8 @@ export async function deleteAPIKey(id: APIKey['id']): Promise<AxiosResponse<void
     });
 }
 
-export async function getPayloadsForUser(userId: User['id']): Promise<AxiosResponse<Payload[]>> {
-    return api.get(`user/${userId}/payloads`, {
+export async function getPayloadsForUser(): Promise<AxiosResponse<Payload[]>> {
+    return api.get('user/payloads', {
         withCredentials: true,
     });
 }

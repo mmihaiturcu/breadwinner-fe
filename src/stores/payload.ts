@@ -73,8 +73,7 @@ export const usePayloadStore = defineStore({
     },
     actions: {
         async refreshPayloads() {
-            const userStore = useUserStore();
-            const response = await getPayloadsForUser(userStore.userDetails.id);
+            const response = await getPayloadsForUser();
 
             this.payloads = response.data;
         },

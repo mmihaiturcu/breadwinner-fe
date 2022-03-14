@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { getApiKeysForUser } from 'src/service/service';
-import { APIKey, User } from 'src/types/models';
+import { APIKey } from 'src/types/models';
 import { CreateApiKeyRequest } from 'src/types/requests';
 
 const storeID = 'apiKey';
@@ -30,8 +30,8 @@ export const useApiKeyStore = defineStore({
     id: storeID,
     state: (): ApiKeyStoreState => ApiKeyStoreState,
     actions: {
-        async refreshApiKeys(userId: User['id']) {
-            const response = await getApiKeysForUser(userId);
+        async refreshApiKeys() {
+            const response = await getApiKeysForUser();
 
             this.apiKeys = response.data;
         },
