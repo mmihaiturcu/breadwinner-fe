@@ -70,7 +70,11 @@
                                         <q-item-section>
                                             <q-item-label>{{
                                                 operation.operands
-                                                    .map((operand) => operand.label)
+                                                    .map((operand) =>
+                                                        operand.isPlaintext
+                                                            ? operand.plaintextValue
+                                                            : operand.label
+                                                    )
                                                     .join(', ')
                                             }}</q-item-label>
                                         </q-item-section>
