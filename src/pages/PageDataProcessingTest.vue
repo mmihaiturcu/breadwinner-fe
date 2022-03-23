@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts">
-import BreadwinnerModule from 'src/utils/BreadwinnerModule';
+import { BreadwinnerModule } from 'breadwinner';
 import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
-    name: 'PageApiKeys',
+    name: 'PageDataProcessingTest',
     setup() {
         const testAPIKey = ref('');
 

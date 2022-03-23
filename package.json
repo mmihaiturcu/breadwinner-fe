@@ -13,6 +13,7 @@
     "dependencies": {
         "@quasar/extras": "^1.0.0",
         "axios": "^0.21.1",
+        "breadwinner": "file:../../breadwinner/breadwinner",
         "core-js": "^3.6.5",
         "email-validator": "^2.0.4",
         "file-saver": "^2.0.5",
