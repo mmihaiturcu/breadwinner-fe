@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { createPayload, getPayloadsForUser } from 'src/service/service';
-import { Chunk, Dataset, KeyPair, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
+import { Chunk, Dataset, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
 import { CHUNK_SIZE } from 'src/utils/constants';
-import FHEModule from 'src/utils/FHEModule';
 import { chunkArray } from 'src/utils/helper';
 import { Notify } from 'quasar';
-import { OperandTypes, Operations } from 'src/types/enums';
+import { KeyPair, Operations, FHEModule } from 'breadwinner';
+import { OperandTypes } from 'src/types/enums';
 
 const storeID = 'payload';
 

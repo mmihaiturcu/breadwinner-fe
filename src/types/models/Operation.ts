@@ -1,4 +1,4 @@
-import { Operations } from '../enums';
+import { Operations } from 'breadwinner';
 import { ResultType } from './ResultType';
 
 export interface Operation {

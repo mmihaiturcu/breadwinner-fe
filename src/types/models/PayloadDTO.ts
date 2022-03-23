@@ -1,4 +1,5 @@
-import { Chunk, JSONSchema } from '.';
+import { JSONSchema } from 'breadwinner';
+import { Chunk } from '.';
 
 export interface PayloadDTO {
     label: string;

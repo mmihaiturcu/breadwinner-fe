@@ -5,12 +5,12 @@
 </template>
 
 <script lang="ts">
+import { FHEModule } from 'breadwinner';
 import saveAs from 'file-saver';
 import { storeToRefs } from 'pinia';
 import { getPayloadDecryptInfo, getProcessedChunkOutput } from 'src/service/service';
 import { usePayloadStore, useUserStore } from 'src/stores';
 import { OperandTypes } from 'src/types/enums';
-import FHEModule from 'src/utils/FHEModule';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
