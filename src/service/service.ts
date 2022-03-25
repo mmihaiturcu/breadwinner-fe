@@ -144,3 +144,10 @@ export async function validate2FAToken(payload: { token: string }): Promise<Axio
         withCsrf: true,
     });
 }
+
+export async function getConnectedStripeAccountLink(): Promise<AxiosResponse<string>> {
+    return api.post('user/getConnectedStripeAccountLink', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
