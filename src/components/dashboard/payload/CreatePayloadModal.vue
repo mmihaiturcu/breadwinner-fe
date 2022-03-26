@@ -31,6 +31,15 @@
                 >
                     <CreatePayloadStep3 />
                 </q-step>
+                <q-step
+                    :name="4"
+                    title="Pay"
+                    icon="mdi-cash"
+                    active-icon="mdi-cash"
+                    :done="currentPayloadCreationStep > 4"
+                >
+                    <CreatePayloadStep4 />
+                </q-step>
             </q-stepper>
             <AddOperationModal v-if="showAddOperationModal" />
         </div>
@@ -45,7 +54,9 @@ import { defineComponent } from 'vue';
 import CreatePayloadStep1 from './CreatePayloadStep1.vue';
 import CreatePayloadStep2 from './CreatePayloadStep2.vue';
 import CreatePayloadStep3 from './CreatePayloadStep3.vue';
+import CreatePayloadStep4 from './CreatePayloadStep4.vue';
 import AddOperationModal from './AddOperationModal.vue';
+import { getCheckoutLink } from 'src/service/service';
 
 export default defineComponent({
     name: 'CreateApiKeyModal',
@@ -53,6 +64,7 @@ export default defineComponent({
         CreatePayloadStep1,
         CreatePayloadStep2,
         CreatePayloadStep3,
+        CreatePayloadStep4,
         AddOperationModal,
     },
     setup() {
@@ -66,7 +78,17 @@ export default defineComponent({
             currentPayloadCreationStep,
             t,
             showAddOperationModal,
+            payloadStore,
         };
+    },
+    async created() {
+        const response = await getCheckoutLink();
+        if (response.data) {
+            this.payloadStore.$patch({
+                currentPayloadCreationStep: 4,
+                checkoutURL: response.data,
+            });
+        }
     },
 });
 </script>

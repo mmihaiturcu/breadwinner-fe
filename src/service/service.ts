@@ -151,3 +151,17 @@ export async function getConnectedStripeAccountLink(): Promise<AxiosResponse<str
         withCsrf: true,
     });
 }
+
+export async function createPaymentForUnattachedPayloads(): Promise<AxiosResponse<string>> {
+    return api.post('payment/createPaymentForUnattachedPayloads', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function getCheckoutLink(): Promise<AxiosResponse<string>> {
+    return api.post('payment/getCheckoutLink', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}

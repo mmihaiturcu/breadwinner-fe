@@ -43,8 +43,6 @@ export default defineComponent({
             const response = await getConnectedStripeAccountLink();
             this.loading = false;
 
-            console.log(response);
-
             window.location.href = response.data;
         },
     },
