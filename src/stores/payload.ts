@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia';
-import { createPayload, getPayloadsForUser } from 'src/service/service';
+import {
+    createPayload,
+    createPaymentForUnattachedPayloads,
+    getPayloadsForUser,
+} from 'src/service/service';
 import { Chunk, Dataset, Payload, PayloadDTO, PayloadTab } from 'src/types/models';
 import { CHUNK_SIZE } from 'src/utils/constants';
 import { chunkArray } from 'src/utils/helper';
@@ -30,6 +34,7 @@ interface PayloadStoreState {
     uploadedKeyPairFile: null | File;
     showEditPayloadTabModal: boolean;
     payloadTabToEdit: PayloadTab | null;
+    checkoutURL: string;
 }
 
 const PayloadStoreState: PayloadStoreState = {
@@ -56,6 +61,7 @@ const PayloadStoreState: PayloadStoreState = {
     uploadedKeyPairFile: null,
     showEditPayloadTabModal: false,
     payloadTabToEdit: null,
+    checkoutURL: '',
 };
 
 export { PayloadStoreState };
@@ -76,8 +82,10 @@ export const usePayloadStore = defineStore({
 
             this.payloads = response.data;
         },
-        async processPayloads() {
+        async processPayloads(): Promise<Promise<void>> {
             const payloads: PayloadDTO[] = [];
+
+            const payloadPromises = [];
 
             for (const payloadTab of this.payloadTabs) {
                 await FHEModule.initFHEContext();
@@ -154,40 +162,52 @@ export const usePayloadStore = defineStore({
 
                 FHEModule.deallocate();
 
-                await createPayload({
-                    label: payloadTab.label,
-                    chunks,
-                    jsonSchema: {
-                        totalDataLength: this.uploadedDataset.data.length,
-                        operations: payloadTab.state.operations.map((operation) => ({
-                            name: operation.operationObject.name,
-                            operands: operation.operands.map((operand) => ({
-                                field: operand.value as string,
-                                type: operand.type,
-                                ...('plaintextValue' in operand
-                                    ? {
-                                          plaintextValue: operand.plaintextValue,
-                                          ...(operand.isRaw ? { isRaw: true } : {}),
-                                      }
-                                    : {}),
+                payloadPromises.push(
+                    createPayload({
+                        label: payloadTab.label,
+                        chunks,
+                        jsonSchema: {
+                            totalDataLength: this.uploadedDataset.data.length,
+                            operations: payloadTab.state.operations.map((operation) => ({
+                                name: operation.operationObject.name,
+                                operands: operation.operands.map((operand) => ({
+                                    field: operand.value as string,
+                                    type: operand.type,
+                                    ...('plaintextValue' in operand
+                                        ? {
+                                              plaintextValue: operand.plaintextValue,
+                                              ...(operand.isRaw ? { isRaw: true } : {}),
+                                          }
+                                        : {}),
+                                })),
+                                resultType: operation.resultType,
                             })),
-                            resultType: operation.resultType,
-                        })),
-                    },
-                    publicKey: keyPair.publicKey,
-                    galoisKeys,
-                    relinKeys,
-                });
+                        },
+                        publicKey: keyPair.publicKey,
+                        galoisKeys,
+                        relinKeys,
+                    })
+                );
             }
 
-            this.showCreatePayloadModal = false;
+            await Promise.all(payloadPromises).catch(() => {
+                Notify.create({
+                    type: 'negative',
+                    message: 'An internal error has occurred.',
+                });
+            });
+
+            const response = await createPaymentForUnattachedPayloads();
+
+            this.checkoutURL = response.data;
+
             this.showKeyPairModal = true;
 
             Notify.create({
                 type: 'positive',
                 message: `Your payload${
                     payloads.length > 1 ? 's' : ''
-                } have been created successfully. You will receive an e-mail notification when they have been fully processed.`,
+                } have been created successfully. Their processing shall begin as soon as your payment is accepted.`,
             });
 
             await this.refreshPayloads();

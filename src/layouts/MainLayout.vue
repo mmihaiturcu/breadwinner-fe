@@ -119,6 +119,16 @@ export default defineComponent({
                 },
             };
         },
+        paymentsNavigationItem(): NavigationItem {
+            return {
+                icon: 'mdi-account-cash',
+                label: this.t('navigation.payments'),
+                routeName: 'payments',
+                clickHandler: async () => {
+                    await this.$router.replace({ path: '/main/payments' });
+                },
+            };
+        },
         logoutNavigationItem(): NavigationItem {
             return {
                 icon: 'mdi-logout',
@@ -142,6 +152,7 @@ export default defineComponent({
             return [
                 this.apiKeysNavigationItem,
                 this.dataProcessingTestNavigationItem,
+                this.paymentsNavigationItem,
                 this.twoFactorAuthenticationNavigationItem,
                 this.logoutNavigationItem,
             ];

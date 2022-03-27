@@ -81,6 +81,19 @@ const routes: RouteRecordRaw[] = [
                 },
             },
             {
+                name: 'payments',
+                path: 'payments',
+                component: () => import('src/pages/PagePayments.vue'),
+                meta: {
+                    requiresAuthentication: true,
+                    availableRoles: {
+                        [Role.ADMIN]: true,
+                        [Role.DATA_SUPPLIER]: false,
+                        [Role.DATA_PROCESSOR]: true,
+                    },
+                },
+            },
+            {
                 name: 'twoFactorAuthentication',
                 path: 'two-factor-authentication',
                 component: () => import('src/pages/Page2FA.vue'),

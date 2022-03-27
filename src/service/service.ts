@@ -144,3 +144,24 @@ export async function validate2FAToken(payload: { token: string }): Promise<Axio
         withCsrf: true,
     });
 }
+
+export async function getConnectedStripeAccountLink(): Promise<AxiosResponse<string>> {
+    return api.post('user/getConnectedStripeAccountLink', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function createPaymentForUnattachedPayloads(): Promise<AxiosResponse<string>> {
+    return api.post('payment/createPaymentForUnattachedPayloads', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
+
+export async function getCheckoutLink(): Promise<AxiosResponse<string>> {
+    return api.post('payment/getCheckoutLink', null, {
+        withCredentials: true,
+        withCsrf: true,
+    });
+}
