@@ -57,13 +57,13 @@ export default defineComponent({
     computed: {
         payloadPrice() {
             let price = 0;
-            const noChunks = getNoChunksInArray(this.uploadedDataset.data[0].length, CHUNK_SIZE);
+            const noChunks = getNoChunksInArray(this.uploadedDataset.data.length, CHUNK_SIZE);
             for (const payloadTab of this.payloadTabs) {
                 price +=
                     PRICE_PER_CHUNK * noChunks +
                     PRICE_PER_OPERATION * payloadTab.state.operations.length * noChunks;
             }
-            return Math.max(MIN_PAYLOAD_PRICE, price).toFixed(2);
+            return Number(Math.max(MIN_PAYLOAD_PRICE, price).toPrecision(2));
         },
     },
     methods: {
