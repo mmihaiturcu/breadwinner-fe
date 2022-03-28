@@ -4,6 +4,7 @@ import { Notify } from 'quasar';
 import { CSRF_HEADER_NAME } from 'src/utils/constants';
 import { useUserStore } from 'src/stores';
 import { storeToRefs } from 'pinia';
+import router from 'src/router';
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
@@ -35,7 +36,6 @@ export default boot(({ app }) => {
     app.config.globalProperties.$api = api;
     // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
     //       so you can easily perform requests against your app's API
-
     const userStore = useUserStore();
     const { csrfToken } = storeToRefs(userStore);
 
@@ -57,12 +57,26 @@ export default boot(({ app }) => {
             console.log(response);
             return Promise.resolve(response);
         },
-        async (error: Error | AxiosError) => {
-            if (error.message === 'Network Error') {
+        async (error) => {
+            if ((error as Error).message === 'Network Error') {
                 Notify.create({
                     type: 'negative',
                     message: 'The connection to the server could not be established.',
                 });
+            } else if (
+                (error as AxiosError).response?.status === 401 &&
+                (error as AxiosError<{ message: string }>).response?.data.message ===
+                    'Session not found / is expired or the user has not validated 2FA and must have done so.'
+            ) {
+                Notify.create({
+                    type: 'negative',
+                    message: 'Your session has expired. Please log in once again.',
+                });
+                userStore.$patch({
+                    isLoggedIn: false,
+                    userDetails: {},
+                });
+                await router.replace({ path: '/login' });
             }
 
             return Promise.reject(error);

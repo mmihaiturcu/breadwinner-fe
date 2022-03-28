@@ -1,4 +1,3 @@
-import { route } from 'quasar/wrappers';
 import { useUserStore } from 'src/stores/user';
 import { Role } from 'src/types/enums';
 import { DEFAULT_ROUTES } from 'src/utils/constants';
@@ -25,45 +24,43 @@ declare module 'vue-router' {
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */) {
-    const createHistory = process.env.SERVER
-        ? createMemoryHistory
-        : process.env.VUE_ROUTER_MODE === 'history'
-        ? createWebHistory
-        : createWebHashHistory;
+const createHistory = process.env.SERVER
+    ? createMemoryHistory
+    : process.env.VUE_ROUTER_MODE === 'history'
+    ? createWebHistory
+    : createWebHashHistory;
 
-    const Router = createRouter({
-        scrollBehavior: (to, from, savedPosition) => {
-            return savedPosition ?? { left: 0, top: 0 };
-        },
-        routes,
-        // Leave this as is and make changes in quasar.conf.js instead!
-        // quasar.conf.js -> build -> vueRouterMode
-        // quasar.conf.js -> build -> publicPath
-        history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE),
-    });
-
-    Router.beforeEach((to, from, next) => {
-        const userStore = useUserStore();
-        if (to.matched.some((record) => record.meta.requiresAuthentication)) {
-            if (!userStore.isLoggedIn) {
-                next({
-                    path: '/login',
-                    params: { nextUrl: to.fullPath },
-                });
-            } else {
-                if (to.meta.availableRoles[userStore.userDetails.role]) {
-                    next();
-                } else {
-                    next({
-                        path: DEFAULT_ROUTES[userStore.userDetails.role],
-                    });
-                }
-            }
-        } else {
-            next();
-        }
-    });
-
-    return Router;
+const router = createRouter({
+    scrollBehavior: (to, from, savedPosition) => {
+        return savedPosition ?? { left: 0, top: 0 };
+    },
+    routes,
+    // Leave this as is and make changes in quasar.conf.js instead!
+    // quasar.conf.js -> build -> vueRouterMode
+    // quasar.conf.js -> build -> publicPath
+    history: createHistory(process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE),
 });
+
+router.beforeEach((to, from, next) => {
+    const userStore = useUserStore();
+    if (to.matched.some((record) => record.meta.requiresAuthentication)) {
+        if (!userStore.isLoggedIn) {
+            next({
+                path: '/login',
+                params: { nextUrl: to.fullPath },
+            });
+        } else {
+            if (to.meta.availableRoles[userStore.userDetails.role]) {
+                next();
+            } else {
+                next({
+                    path: DEFAULT_ROUTES[userStore.userDetails.role],
+                });
+            }
+        }
+    } else {
+        next();
+    }
+});
+
+export default router;

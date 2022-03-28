@@ -13,7 +13,8 @@
                 <q-icon name="cloud_upload" />
             </template>
         </q-file>
-        <q-stepper-navigation>
+        <q-stepper-navigation class="row flex-center navigation">
+            <q-btn flat v-close-popup label="Cancel" />
             <q-btn type="submit" color="primary" label="Next" icon="mdi-arrow-right-bold" />
         </q-stepper-navigation>
     </q-form>
@@ -83,3 +84,9 @@ export default defineComponent({
     },
 });
 </script>
+
+<style scoped lang="scss">
+.navigation {
+    gap: 16px;
+}
+</style>
