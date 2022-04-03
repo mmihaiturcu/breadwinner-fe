@@ -44,7 +44,7 @@ export default defineComponent({
             if (this.uploadedKeyPairFile) {
                 // Fetch some info about payload in order to complete the processing
                 const response = await getPayloadDecryptInfo(
-                    this.userDetails.id,
+                    this.userDetails.roleSpecificId,
                     this.payloadToDecryptId
                 );
                 const payloadDecryptInfo = response.data;

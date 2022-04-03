@@ -1,7 +1,8 @@
 import { Role } from '../enums';
 
 export interface UserLoginResponse {
-    id: number;
+    id: string;
+    roleSpecificId: string;
     email: string;
     role: Role;
     csrfToken: string;

@@ -1,7 +1,8 @@
 import { Role } from '../enums';
 
 export interface UserDetails {
-    id: number;
+    id: string;
+    roleSpecificId: string;
     email: string;
     role: Role;
     enabled2FA: boolean;

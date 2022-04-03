@@ -33,7 +33,8 @@ const UserStoreState: UserStoreState = {
         userRole: Role.DATA_SUPPLIER,
     },
     userDetails: {
-        id: 0,
+        id: '',
+        roleSpecificId: '',
         email: '',
         role: Role.DATA_SUPPLIER,
         enabled2FA: false,

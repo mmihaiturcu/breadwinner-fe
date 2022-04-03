@@ -66,7 +66,9 @@
                                     <q-badge
                                         :color="props.row.progress === 1 ? 'accent' : 'primary'"
                                         text-color="white"
-                                        :label="`Progress: ${props.row.progress * 100}%`"
+                                        :label="`Progress: ${Math.floor(
+                                            props.row.progress * 100
+                                        )}%`"
                                     />
                                 </div>
                             </q-linear-progress>

@@ -85,6 +85,7 @@ export default defineComponent({
                     this.userStore.$patch({
                         userDetails: {
                             id: response.data.id,
+                            roleSpecificId: response.data.roleSpecificId,
                             email: response.data.email,
                             role: response.data.role,
                             enabled2FA: response.data.shouldValidate2FA,

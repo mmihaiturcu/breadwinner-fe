@@ -1,6 +1,5 @@
 export interface APIKey {
-    id: number;
+    id: string;
     prefix: string;
     hostname: string;
-    createdAt: Date;
 }
