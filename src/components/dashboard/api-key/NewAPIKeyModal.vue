@@ -1,9 +1,15 @@
 <template>
     <q-dialog v-model="showReceiveAPIKeyModal" persistent>
         <q-card class="receive-api-key-modal-card-container">
-            <q-card-section>
-                <div class="text-h6">{{ t('apiKeys.createdTitle') }}</div>
-            </q-card-section>
+            <q-toolbar class="bg-primary text-white">
+                <q-avatar>
+                    <q-icon name="mdi-key" color="accent" />
+                </q-avatar>
+
+                <q-toolbar-title>
+                    <span class="text-weight-bold">{{ t('apiKeys.createdTitle') }}</span>
+                </q-toolbar-title>
+            </q-toolbar>
 
             <q-card-section>
                 {{ t('apiKeys.createdMessage') }}

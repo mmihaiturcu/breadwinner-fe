@@ -8,7 +8,7 @@ import { Chunk, Dataset, Payload, PayloadDTO, PayloadTab } from 'src/types/model
 import { CHUNK_SIZE } from 'src/utils/constants';
 import { chunkArray } from 'src/utils/helper';
 import { Notify } from 'quasar';
-import { KeyPair, Operations, FHEModule } from 'breadwinner';
+import { KeyPair, Operations, FHEModule, SchemeType } from 'breadwinner';
 import { OperandTypes } from 'src/types/enums';
 
 const storeID = 'payload';
@@ -88,7 +88,43 @@ export const usePayloadStore = defineStore({
             const payloadPromises = [];
 
             for (const payloadTab of this.payloadTabs) {
-                await FHEModule.initFHEContext();
+                // Get the selected columns of the dataset, in order to chunk & encrypt them.
+                const selectedColumnIndicesSet: Set<number> = new Set();
+
+                payloadTab.state.operations
+                    .map((operation) => operation.operands)
+                    .forEach((operands) => {
+                        operands
+                            .filter((operand) => 'columnIndex' in operand)
+                            .forEach((operand) =>
+                                selectedColumnIndicesSet.add(operand.columnIndex as number)
+                            );
+                    });
+
+                const chunksByColumn: Record<number, number[][]> = {};
+
+                let schemeType: SchemeType = SchemeType.BGV;
+
+                selectedColumnIndicesSet.forEach((columnIndex) => {
+                    const columnData = this.uploadedDataset.data.map(
+                        (row) => row[columnIndex] as number
+                    );
+                    if (
+                        schemeType !== SchemeType.CKKS &&
+                        columnData.find((value) => !Number.isInteger(value))
+                    ) {
+                        schemeType = SchemeType.CKKS;
+                    }
+                    chunksByColumn[columnIndex] = chunkArray(columnData, CHUNK_SIZE) as number[][];
+                });
+
+                const dataLengths = chunksByColumn[
+                    selectedColumnIndicesSet.values().next().value as number
+                ].map((chunk) => chunk.length);
+
+                const chunks = new Array<Chunk>(dataLengths.length);
+
+                await FHEModule.initFHEContext(schemeType);
                 const keyPair = FHEModule.generateKeys();
                 let galoisKeys = undefined as undefined | string;
                 // Special case if we're performing addition for a single array (sum of its elements). In this case, we have to create special Galois keys.
@@ -115,34 +151,6 @@ export const usePayloadStore = defineStore({
                     relinKeys = FHEModule.generateRelinKeys();
                 }
 
-                // Get the selected columns of the dataset, in order to chunk & encrypt them.
-                const selectedColumnIndicesSet: Set<number> = new Set();
-
-                payloadTab.state.operations
-                    .map((operation) => operation.operands)
-                    .forEach((operands) => {
-                        operands
-                            .filter((operand) => 'columnIndex' in operand)
-                            .forEach((operand) =>
-                                selectedColumnIndicesSet.add(operand.columnIndex as number)
-                            );
-                    });
-
-                const chunksByColumn: Record<number, number[][]> = {};
-
-                selectedColumnIndicesSet.forEach((columnIndex) => {
-                    chunksByColumn[columnIndex] = chunkArray(
-                        this.uploadedDataset.data.map((row) => row[columnIndex] as number),
-                        CHUNK_SIZE
-                    ) as number[][];
-                });
-
-                const dataLengths = chunksByColumn[
-                    selectedColumnIndicesSet.values().next().value as number
-                ].map((chunk) => chunk.length);
-
-                const chunks = new Array<Chunk>(dataLengths.length);
-
                 dataLengths.forEach((chunkLength, index) => {
                     const chunkObject: Record<string, string> = {};
 
@@ -168,6 +176,7 @@ export const usePayloadStore = defineStore({
                         chunks,
                         jsonSchema: {
                             totalDataLength: this.uploadedDataset.data.length,
+                            schemeType,
                             operations: payloadTab.state.operations.map((operation) => ({
                                 name: operation.operationObject.name,
                                 operands: operation.operands.map((operand) => ({
