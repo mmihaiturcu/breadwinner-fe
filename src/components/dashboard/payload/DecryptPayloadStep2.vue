@@ -52,7 +52,7 @@ export default defineComponent({
                 // In the case of a number type result, we must sum all the numbers and divide by the number of chunks.
 
                 this.keyPair = JSON.parse(await this.uploadedKeyPairFile.text());
-                await FHEModule.initFHEContext();
+                await FHEModule.initFHEContext(payloadDecryptInfo.schemeType);
                 FHEModule.setKeyPair(this.keyPair);
 
                 let plainTextResult = null as null | number | Array<number>;
