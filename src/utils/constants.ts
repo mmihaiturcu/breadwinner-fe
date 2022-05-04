@@ -149,7 +149,6 @@ export const COMPLEX_OPERATION_PRESETS = {
 };
 
 export const DEFAULT_ROUTES = {
-    [Role.ADMIN]: '/main/dashboard',
     [Role.DATA_PROCESSOR]: '/main/api-keys',
     [Role.DATA_SUPPLIER]: '/main/payloads',
 };

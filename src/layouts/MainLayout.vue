@@ -168,9 +168,6 @@ export default defineComponent({
                 case Role.DATA_PROCESSOR: {
                     return this.dataProcessorNavigationItems;
                 }
-                case Role.ADMIN: {
-                    return this.adminNavigationItems;
-                }
                 default:
                     return [];
             }

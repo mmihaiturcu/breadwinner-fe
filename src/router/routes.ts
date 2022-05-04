@@ -35,7 +35,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_PROCESSOR]: true,
                         [Role.DATA_SUPPLIER]: true,
                     },
@@ -48,7 +47,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_SUPPLIER]: false,
                         [Role.DATA_PROCESSOR]: true,
                     },
@@ -61,7 +59,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_SUPPLIER]: false,
                         [Role.DATA_PROCESSOR]: true,
                     },
@@ -74,7 +71,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_SUPPLIER]: true,
                         [Role.DATA_PROCESSOR]: false,
                     },
@@ -87,7 +83,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_SUPPLIER]: false,
                         [Role.DATA_PROCESSOR]: true,
                     },
@@ -100,7 +95,6 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     requiresAuthentication: true,
                     availableRoles: {
-                        [Role.ADMIN]: true,
                         [Role.DATA_SUPPLIER]: true,
                         [Role.DATA_PROCESSOR]: true,
                     },
