@@ -9,14 +9,6 @@
             grid
             hide-header
         >
-            <template v-slot:top-right>
-                <q-input borderless dense debounce="300" placeholder="Search" v-model="searchValue">
-                    <template v-slot:append>
-                        <q-icon name="search" />
-                    </template>
-                </q-input>
-            </template>
-
             <template v-slot:item="props">
                 <div
                     class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3 grid-style-transition"
@@ -89,7 +81,7 @@
 <script lang="ts">
 import { storeToRefs } from 'pinia';
 import { usePayloadStore } from 'src/stores';
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import CreatePayloadModal from 'src/components/dashboard/payload/CreatePayloadModal.vue';
 import ShowKeyPairModal from 'src/components/dashboard/payload/ShowKeyPairModal.vue';
 import Logo from 'src/components/Logo.vue';
@@ -114,7 +106,6 @@ export default defineComponent({
                     sortable: true,
                 },
             ],
-            searchValue: ref(''),
             showCreatePayloadModal,
             showKeyPairModal,
             showDecryptPayloadModal,
