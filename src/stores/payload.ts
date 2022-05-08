@@ -175,7 +175,6 @@ export const usePayloadStore = defineStore({
                         label: payloadTab.label,
                         chunks,
                         jsonSchema: {
-                            totalDataLength: this.uploadedDataset.data.length,
                             schemeType,
                             operations: payloadTab.state.operations.map((operation) => ({
                                 name: operation.operationObject.name,
