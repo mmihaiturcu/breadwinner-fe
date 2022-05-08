@@ -1,4 +1,4 @@
-import { OperandTypes, Operations, Role } from 'src/types/enums';
+import { OperandTypes, OperationType, Role } from 'src/types/enums';
 
 export const CHUNK_SIZE = 1000;
 export const CSRF_HEADER_NAME = 'CSRF-Token';
@@ -13,7 +13,7 @@ export const STRIPE_ICON_PATH =
 
 export const OPERATIONS = [
     {
-        name: Operations.ADD,
+        type: OperationType.ADD,
         label: 'Add',
         icon: 'mdi-plus',
         minOperands: 1,
@@ -32,7 +32,7 @@ export const OPERATIONS = [
         },
     },
     {
-        name: Operations.SUBTRACT,
+        type: OperationType.SUBTRACT,
         label: 'Subtract',
         icon: 'mdi-minus',
         minOperands: 2,
@@ -48,7 +48,7 @@ export const OPERATIONS = [
         },
     },
     {
-        name: Operations.MULTIPLY,
+        type: OperationType.MULTIPLY,
         label: 'Multiply',
         icon: 'mdi-multiplication',
         minOperands: 2,
@@ -66,7 +66,7 @@ export const OPERATIONS = [
         },
     },
     {
-        name: Operations.EXPONENTIATION,
+        type: OperationType.EXPONENTIATION,
         label: 'Exponentiation',
         icon: 'mdi-exponent',
         minOperands: 2,
@@ -81,33 +81,6 @@ export const OPERATIONS = [
             },
         },
     },
-    // {
-    //     name: Operations.DIVIDE,
-    //     label: 'Divide',
-    //     icon: 'mdi-division',
-    //     minOperands: 2,
-    //     maxOperands: 2,
-    //     resultTypes: {
-    //         [OperandTypes.NUMBER]: {
-    //             [OperandTypes.NUMBER]: OperandTypes.NUMBER,
-    //         },
-    //         [OperandTypes.ARRAY]: {
-    //             [OperandTypes.NUMBER]: OperandTypes.ARRAY,
-    //         },
-    //     },
-    // },
-    // {
-    //     name: Operations.SQUARE_ROOT,
-    //     label: 'Square root',
-    //     icon: 'mdi-square-root',
-    //     minOperands: 1,
-    //     maxOperands: 1,
-    //     resultTypes: {
-    //         [OperandTypes.NUMBER]: {
-    //             [OperandTypes.NUMBER]: OperandTypes.NUMBER,
-    //         },
-    //     },
-    // },
 ];
 
 export const COMPLEX_OPERATION_PRESETS = {

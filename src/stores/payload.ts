@@ -8,7 +8,7 @@ import { Chunk, Dataset, Payload, PayloadDTO, PayloadTab } from 'src/types/model
 import { CHUNK_SIZE } from 'src/utils/constants';
 import { chunkArray } from 'src/utils/helper';
 import { Notify } from 'quasar';
-import { KeyPair, Operations, FHEModule, SchemeType } from 'breadwinner';
+import { KeyPair, OperationType, FHEModule, SchemeType } from 'breadwinner';
 import { OperandTypes } from 'src/types/enums';
 
 const storeID = 'payload';
@@ -131,7 +131,7 @@ export const usePayloadStore = defineStore({
                 if (
                     payloadTab.state.operations.some(
                         (operation) =>
-                            operation.operationObject.name === Operations.ADD &&
+                            operation.operationObject.type === OperationType.ADD &&
                             operation.operands.length === 1 &&
                             operation.operands[0].type === OperandTypes.ARRAY
                     )
@@ -177,7 +177,7 @@ export const usePayloadStore = defineStore({
                         jsonSchema: {
                             schemeType,
                             operations: payloadTab.state.operations.map((operation) => ({
-                                name: operation.operationObject.name,
+                                type: operation.operationObject.type,
                                 operands: operation.operands.map((operand) => ({
                                     field: operand.value as string,
                                     type: operand.type,

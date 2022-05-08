@@ -1,8 +1,8 @@
-import { Operations } from 'breadwinner';
+import { OperationType } from 'breadwinner';
 import { ResultType } from './ResultType';
 
 export interface Operation {
-    name: Operations;
+    type: OperationType;
     label: string;
     icon: string;
     minOperands: number;

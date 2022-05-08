@@ -99,7 +99,7 @@ import { usePayloadStore } from 'src/stores';
 import { defineComponent, ref } from 'vue';
 import { OPERATIONS } from 'src/utils/constants';
 import { OperandOption, Operation, ResultType } from 'src/types/models';
-import { OperandTypes, Operations } from 'src/types/enums';
+import { OperandTypes, OperationType } from 'src/types/enums';
 
 export default defineComponent({
     name: 'AddOperationModal',
@@ -124,8 +124,8 @@ export default defineComponent({
     },
     computed: {
         operationSpecificConditions(): boolean {
-            switch (this.operation.operationObject?.name) {
-                case Operations.EXPONENTIATION:
+            switch (this.operation.operationObject?.type) {
+                case OperationType.EXPONENTIATION:
                     return (
                         this.operation.operands.length === 2 &&
                         this.operation.operands[1]!.isRaw === true
@@ -198,7 +198,7 @@ export default defineComponent({
                     icon: 'mdi-numeric',
                     type: OperandTypes.NUMBER,
                     isPlaintext: true,
-                    isRaw: this.operation.operationObject?.name === Operations.EXPONENTIATION,
+                    isRaw: this.operation.operationObject?.type === OperationType.EXPONENTIATION,
                     plaintextValue: '',
                 },
             ];
