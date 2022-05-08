@@ -44,8 +44,6 @@
                             virtual-scroll
                             :pagination="pagination"
                             :rows-per-page-options="[100, 1000]"
-                            selection="multiple"
-                            v-model:selected="payloadTab.state.selectedRows"
                         >
                         </q-table>
                     </template>
@@ -188,7 +186,6 @@ export default defineComponent({
                     name: `Payload ${this.payloadTabs.length + 1}`,
                     label: `Payload ${this.payloadTabs.length + 1}`,
                     state: {
-                        selectedRows: [],
                         operations: [],
                     },
                 });

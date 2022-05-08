@@ -91,8 +91,23 @@ export const usePayloadStore = defineStore({
                 // Get the selected columns of the dataset, in order to chunk & encrypt them.
                 const selectedColumnIndicesSet: Set<number> = new Set();
 
+                const chunksByColumn: Record<number, number[][]> = {};
+
+                let schemeType: SchemeType = SchemeType.BGV;
+
                 payloadTab.state.operations
-                    .map((operation) => operation.operands)
+                    .map((operation) => {
+                        if (operation.operationObject.type === OperationType.DIVIDE) {
+                            schemeType = SchemeType.CKKS;
+                            for (const operand of operation.operands) {
+                                if (operand.isPlaintext) {
+                                    operand.plaintextValue = 1 / (operand.plaintextValue as number);
+                                }
+                            }
+                        }
+
+                        return operation.operands;
+                    })
                     .forEach((operands) => {
                         operands
                             .filter((operand) => 'columnIndex' in operand)
@@ -100,10 +115,6 @@ export const usePayloadStore = defineStore({
                                 selectedColumnIndicesSet.add(operand.columnIndex as number)
                             );
                     });
-
-                const chunksByColumn: Record<number, number[][]> = {};
-
-                let schemeType: SchemeType = SchemeType.BGV;
 
                 selectedColumnIndicesSet.forEach((columnIndex) => {
                     const columnData = this.uploadedDataset.data.map(

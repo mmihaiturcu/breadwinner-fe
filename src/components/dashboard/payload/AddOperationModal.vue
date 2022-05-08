@@ -130,6 +130,11 @@ export default defineComponent({
                         this.operation.operands.length === 2 &&
                         this.operation.operands[1]!.isRaw === true
                     );
+                case OperationType.DIVIDE:
+                    return (
+                        this.operation.operands.length === 2 &&
+                        this.operation.operands[1]!.isPlaintext === true
+                    );
                 default:
                     return true;
             }
@@ -144,7 +149,6 @@ export default defineComponent({
                 this.parsedOperationResultType !== null &&
                 this.parsedOperationResultType !== undefined &&
                 !this.operation.operands.every((operand) => operand!.isPlaintext)
-                // this.operation.operands.every((operand: null | OperandOption) => operand != null)
             );
         },
         canRemoveOperands(): boolean {

@@ -70,7 +70,6 @@ export default defineComponent({
                                     name: 'Payload 1',
                                     label: 'Payload 1',
                                     state: {
-                                        selectedRows: [],
                                         operations: [],
                                     },
                                 },

@@ -66,6 +66,22 @@ export const OPERATIONS = [
         },
     },
     {
+        type: OperationType.DIVIDE,
+        label: 'Divide',
+        icon: 'mdi-division',
+        minOperands: 2,
+        maxOperands: 2,
+        requiresRelinKeys: true,
+        resultTypes: {
+            [OperandTypes.ARRAY]: {
+                [OperandTypes.NUMBER]: OperandTypes.ARRAY,
+            },
+            [OperandTypes.NUMBER]: {
+                [OperandTypes.NUMBER]: OperandTypes.NUMBER,
+            },
+        },
+    },
+    {
         type: OperationType.EXPONENTIATION,
         label: 'Exponentiation',
         icon: 'mdi-exponent',

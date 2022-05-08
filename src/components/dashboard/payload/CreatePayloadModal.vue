@@ -1,48 +1,62 @@
 <template>
     <q-dialog v-model="showCreatePayloadModal" persistent>
-        <div class="create-payload-stepper-container">
-            <q-stepper v-model="currentPayloadCreationStep" color="primary" animated>
-                <q-step
-                    :name="1"
-                    title="Upload dataset"
-                    icon="mdi-cloud-upload"
-                    active-icon="mdi-cloud-upload"
-                    :done="currentPayloadCreationStep > 1"
-                >
-                    <CreatePayloadStep1 />
-                </q-step>
+        <q-card class="create-payload-stepper-container">
+            <q-toolbar class="bg-primary text-white">
+                <q-avatar>
+                    <q-icon name="mdi-cog" color="accent" />
+                </q-avatar>
 
-                <q-step
-                    :name="2"
-                    title="Create payloads & operations"
-                    icon="mdi-table-cog"
-                    active-icon="mdi-table-cog"
-                    :done="currentPayloadCreationStep > 2"
-                >
-                    <CreatePayloadStep2 />
-                </q-step>
+                <q-toolbar-title>
+                    <span class="text-weight-bold">Data payload creation</span>
+                </q-toolbar-title>
+            </q-toolbar>
 
-                <q-step
-                    :name="3"
-                    title="Confirm payloads"
-                    icon="mdi-help-rhombus"
-                    active-icon="mdi-help-rhombus"
-                    :done="currentPayloadCreationStep > 3"
-                >
-                    <CreatePayloadStep3 />
-                </q-step>
-                <q-step
-                    :name="4"
-                    title="Pay"
-                    icon="mdi-cash"
-                    active-icon="mdi-cash"
-                    :done="currentPayloadCreationStep > 4"
-                >
-                    <CreatePayloadStep4 />
-                </q-step>
-            </q-stepper>
-            <AddOperationModal v-if="showAddOperationModal" />
-        </div>
+            <q-separator />
+
+            <div>
+                <q-stepper v-model="currentPayloadCreationStep" color="primary" animated>
+                    <q-step
+                        :name="1"
+                        title="Upload dataset"
+                        icon="mdi-cloud-upload"
+                        active-icon="mdi-cloud-upload"
+                        :done="currentPayloadCreationStep > 1"
+                    >
+                        <CreatePayloadStep1 />
+                    </q-step>
+
+                    <q-step
+                        :name="2"
+                        title="Create payloads & operations"
+                        icon="mdi-table-cog"
+                        active-icon="mdi-table-cog"
+                        :done="currentPayloadCreationStep > 2"
+                    >
+                        <CreatePayloadStep2 />
+                    </q-step>
+
+                    <q-step
+                        :name="3"
+                        title="Confirm payloads"
+                        icon="mdi-help-rhombus"
+                        active-icon="mdi-help-rhombus"
+                        :done="currentPayloadCreationStep > 3"
+                    >
+                        <CreatePayloadStep3 />
+                    </q-step>
+                    <q-step
+                        :name="4"
+                        title="Pay"
+                        icon="mdi-cash"
+                        active-icon="mdi-cash"
+                        :done="currentPayloadCreationStep > 4"
+                    >
+                        <CreatePayloadStep4 />
+                    </q-step>
+                </q-stepper>
+                <AddOperationModal v-if="showAddOperationModal" />
+            </div>
+        </q-card>
     </q-dialog>
 </template>
 

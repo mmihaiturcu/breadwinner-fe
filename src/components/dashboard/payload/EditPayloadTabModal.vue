@@ -3,7 +3,7 @@
         <q-card class="receive-key-pair-modal-card-container">
             <q-toolbar class="bg-primary text-white">
                 <q-avatar>
-                    <q-icon name="mdi-key" color="accent" />
+                    <q-icon name="mdi-label" color="accent" />
                 </q-avatar>
 
                 <q-toolbar-title>
