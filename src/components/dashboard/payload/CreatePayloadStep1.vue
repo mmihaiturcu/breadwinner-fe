@@ -6,7 +6,7 @@
             v-model="uploadedFile"
             label="Upload a dataset"
             :style="{ width: '330px' }"
-            accept=".csv, .xlsx, .xls"
+            accept=".csv"
             :rules="[(value) => value || 'You must first upload a file.']"
         >
             <template v-slot:prepend>
