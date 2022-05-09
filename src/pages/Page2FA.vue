@@ -20,27 +20,38 @@
                 />
             </q-card-actions>
         </q-card>
-        <q-stepper v-else v-model="currentEnable2FAStep" color="primary" animated>
-            <q-step
-                :name="1"
-                title="Request 2FA activation"
-                icon="mdi-account-plus"
-                active-icon="mdi-account-plus"
-                :done="currentEnable2FAStep > 1"
-            >
-                <Enable2FAStep1 />
-            </q-step>
+        <q-card v-else>
+            <q-toolbar class="bg-primary text-white">
+                <q-avatar>
+                    <q-icon name="mdi-qrcode" color="accent" />
+                </q-avatar>
 
-            <q-step
-                :name="2"
-                title="Provide first 2FA token"
-                icon="mdi-two-factor-authentication"
-                active-icon="mdi-two-factor-authentication"
-                :done="currentEnable2FAStep > 2"
-            >
-                <Enable2FAStep2 />
-            </q-step>
-        </q-stepper>
+                <q-toolbar-title>
+                    <span class="text-weight-bold">Two factor authentication configuration</span>
+                </q-toolbar-title>
+            </q-toolbar>
+            <q-stepper v-model="currentEnable2FAStep" color="primary" animated>
+                <q-step
+                    :name="1"
+                    title="Request 2FA activation"
+                    icon="mdi-account-plus"
+                    active-icon="mdi-account-plus"
+                    :done="currentEnable2FAStep > 1"
+                >
+                    <Enable2FAStep1 />
+                </q-step>
+
+                <q-step
+                    :name="2"
+                    title="Provide first 2FA token"
+                    icon="mdi-two-factor-authentication"
+                    active-icon="mdi-two-factor-authentication"
+                    :done="currentEnable2FAStep > 2"
+                >
+                    <Enable2FAStep2 />
+                </q-step>
+            </q-stepper>
+        </q-card>
     </q-page>
 </template>
 
